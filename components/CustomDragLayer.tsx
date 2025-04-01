@@ -1,6 +1,6 @@
 import { useDragLayer } from 'react-dnd';
+import Image from 'next/image';
 
-// Composant qui affiche un aperçu personnalisé pendant le drag
 const CustomDragLayer = () => {
   const { itemType, isDragging, item, initialOffset, currentOffset } = useDragLayer((monitor) => ({
     item: monitor.getItem(),
@@ -9,17 +9,6 @@ const CustomDragLayer = () => {
     currentOffset: monitor.getSourceClientOffset(),
     isDragging: monitor.isDragging(),
   }));
-
-  const getEmoji = (type: string) => {
-    switch (type) {
-      case 'character': return '🧍';
-      case 'house': return '🏠';
-      case 'rock': return '🪨';
-      case 'tree': return '🌳';
-      case 'road': return '🛣️';
-      default: return '❓';
-    }
-  };
 
   if (!isDragging || !currentOffset) {
     return null;
@@ -34,10 +23,16 @@ const CustomDragLayer = () => {
         left: currentOffset.x,
         top: currentOffset.y,
         transform: 'translate(-50%, -50%)',
-        opacity: 0.8,
+        opacity: 0.9,
       }}
     >
-      <div className="text-5xl">{getEmoji(item.type)}</div>
+      <Image 
+        src={item.imagePath} 
+        alt={item.type}
+        width={90}
+        height={90}
+        className="object-contain"
+      />
     </div>
   );
 };

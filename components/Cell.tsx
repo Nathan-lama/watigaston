@@ -1,4 +1,5 @@
 import { useDrop } from 'react-dnd';
+import Image from 'next/image';
 
 interface CellProps {
   content: string | null;
@@ -18,21 +19,36 @@ const Cell = ({ content, onDrop, position, onClick, transparent = false }: CellP
     }),
   }));
 
-  const renderContent = () => {
-    switch (content) {
-      case 'character':
-        return <span className="text-5xl select-none">🧍</span>;
-      case 'house':
-        return <span className="text-5xl select-none">🏠</span>;
-      case 'rock':
-        return <span className="text-5xl select-none">🪨</span>;
-      case 'tree':
-        return <span className="text-5xl select-none">🌳</span>;
-      case 'road':
-        return <span className="text-5xl select-none">🛣️</span>;
-      default:
-        return null;
+  // Fonction pour obtenir le chemin de l'image basé sur le type de contenu
+  const getImagePath = (content: string): string => {
+    if (content.startsWith('debut_')) {
+      const pieceNumber = content.split('_')[1];
+      return `/kit1/debut/piece${pieceNumber}.png`;
+    } else if (content.startsWith('fin_')) {
+      const pieceNumber = content.split('_')[1];
+      return `/kit1/fin/piece${pieceNumber}.png`;
+    } else if (content.startsWith('puzzle_')) {
+      const pieceNumber = content.split('_')[1];
+      return `/kit1/puzzle/piece${pieceNumber}.png`;
     }
+    return ''; // Fallback si le format ne correspond pas
+  };
+
+  const renderContent = () => {
+    if (!content) return null;
+    
+    const imagePath = getImagePath(content);
+    if (!imagePath) return null;
+    
+    return (
+      <Image 
+        src={imagePath}
+        alt={content}
+        width={70}
+        height={70}
+        className="object-contain"
+      />
+    );
   };
 
   // Style dynamique selon l'état du drop et si la cellule doit être transparente

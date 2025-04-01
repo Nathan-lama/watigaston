@@ -15,11 +15,11 @@ const isTouchDevice = () => {
   return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 };
 
-// Sample predefined level - now 3x5 instead of 5x5
+// Niveau d'exemple vide 3x5
 const SAMPLE_LEVEL = Array(3).fill(null).map(() => Array(5).fill(null));
-// Add some predefined obstacles
-SAMPLE_LEVEL[1][1] = 'tree';
-SAMPLE_LEVEL[2][3] = 'rock';
+// Vous pouvez ajouter des pièces prédéfinies si nécessaire
+// SAMPLE_LEVEL[0][0] = 'debut_1';
+// SAMPLE_LEVEL[2][4] = 'fin_1';
 
 // Options pour TouchBackend
 const touchBackendOptions = {

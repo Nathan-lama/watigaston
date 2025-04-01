@@ -25,7 +25,8 @@ const GameBoard = ({ grid, setGrid, gridSize, onCheckPath }: GameBoardProps) => 
     img.src = '/Board-lvl1.png';
   }, []);
 
-  const handleDropOnCell = (row: number, col: number, item: { type: string }) => {
+  const handleDropOnCell = (row: number, col: number, item: { type: string; category: string }) => {
+    // On enregistre le type complet de la pièce pour pouvoir déterminer son image
     const newGrid = [...grid];
     newGrid[row][col] = item.type;
     setGrid(newGrid);
@@ -43,7 +44,7 @@ const GameBoard = ({ grid, setGrid, gridSize, onCheckPath }: GameBoardProps) => 
   return (
     <div className="bg-gradient-to-br from-green-100 to-green-200 p-6 rounded-lg shadow-xl border border-green-300">
       <div className="relative mx-auto" style={{ width: 'fit-content' }}>
-        {/* Image du plateau - modifiée pour rester visible pendant le drag */}
+        {/* Image du plateau */}
         <div style={{ position: 'relative', zIndex: 1 }}>
           <Image 
             src="/Board-lvl1.png" 
@@ -59,7 +60,7 @@ const GameBoard = ({ grid, setGrid, gridSize, onCheckPath }: GameBoardProps) => 
           />
         </div>
         
-        {/* Grille superposée sur l'image - zIndex plus élevé */}
+        {/* Grille superposée sur l'image */}
         <div 
           className="absolute top-0 left-0 w-full h-full grid"
           style={{ 
