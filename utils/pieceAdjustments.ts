@@ -43,8 +43,12 @@ export const defaultAdjustments: PieceAdjustments = {
     'puzzle_6': { offsetX: 0, offsetY: 0, scale: 1.09 },
     'puzzle_7': { offsetX: 0, offsetY: 0, scale: 1.09 },
     'puzzle_8': { offsetX: 0, offsetY: 0, scale: 1.09 },
-
-  }
+    
+    // Obstacles - ajout des ajustements pour les obstacles
+    'obstacle_1': { offsetX: 0, offsetY: 0, scale: 1 },
+    'obstacle_2': { offsetX: 0, offsetY: 0, scale: 1 },
+    'obstacle_3': { offsetX: 0, offsetY: 0, scale: 1 },
+    'obstacle_4': { offsetX: 0, offsetY: 0, scale: 1 },  }
 };
 
 // Helper function to get adjustment for a piece
@@ -53,6 +57,12 @@ export const getAdjustmentForPiece = (pieceType: string, adjustments: PieceAdjus
   // utiliser les valeurs de puzzle_1 comme référence
   if (pieceType.startsWith('puzzle_') && !adjustments.pieces[pieceType] && adjustments.pieces['puzzle_1']) {
     return {...adjustments.pieces['puzzle_1']};
+  }
+  
+  // Si c'est un obstacle et qu'il n'existe pas encore dans les ajustements,
+  // utiliser les valeurs de obstacle_1 comme référence
+  if (pieceType.startsWith('obstacle_') && !adjustments.pieces[pieceType] && adjustments.pieces['obstacle_1']) {
+    return {...adjustments.pieces['obstacle_1']};
   }
   
   // Sinon retourner l'ajustement existant ou des valeurs par défaut

@@ -35,6 +35,7 @@ const DraggableItem = ({ type, name, imagePath, category }: DraggableItemProps) 
       case 'debut': return 'border-green-400 hover:border-green-600';
       case 'fin': return 'border-red-400 hover:border-red-600';
       case 'puzzle': return 'border-amber-200 hover:border-amber-400';
+      case 'obstacle': return 'border-purple-300 hover:border-purple-500'; // Nouvelle couleur pour les obstacles
       default: return 'border-amber-200 hover:border-amber-400';
     }
   };

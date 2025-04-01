@@ -46,11 +46,14 @@ export const findPath = (grid: (string | null)[][]): boolean => {
       // Vérifier si la nouvelle position est dans les limites
       if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
         const key = `${newRow},${newCol}`;
+        const cell = grid[newRow][newCol];
         
         // Considérer les pièces de puzzle ou d'arrivée comme faisant partie du chemin
+        // Ignorer les obstacles (ils bloquent le chemin)
         if (!visited.has(key) && 
-            (grid[newRow][newCol]?.startsWith('puzzle_') || 
-             grid[newRow][newCol]?.startsWith('fin_'))) {
+            cell !== null && 
+            !cell.startsWith('obstacle_') && 
+            (cell.startsWith('puzzle_') || cell.startsWith('fin_'))) {
           visited.add(key);
           queue.push([newRow, newCol]);
         }

@@ -1,53 +1,21 @@
 import DraggableItem from './DraggableItem';
 
-// Configuration des pièces par catégorie
+// Configuration des pièces par catégorie - Uniquement les pièces de puzzle
 const PUZZLE_PIECES = [
-  
   // Pièces de puzzle (chemin)
   { type: 'puzzle_1', name: 'Chemin 1', imagePath: '/kit1/puzzle/piece1.png', category: 'puzzle' },
   { type: 'puzzle_2', name: 'Chemin 2', imagePath: '/kit1/puzzle/piece2.png', category: 'puzzle' },
   { type: 'puzzle_4', name: 'Chemin 4', imagePath: '/kit1/puzzle/piece4.png', category: 'puzzle' },
-  // Ajoutez d'autres pièces de puzzle si nécessaire
 ];
 
 const ItemsGallery = () => {
   return (
     <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-5 rounded-lg shadow-lg border border-amber-200">
-      {/* Section des pièces de départ */}
-      <div className="mb-6">
-        <div className="grid grid-cols-2 gap-3">
-          {PUZZLE_PIECES.filter(p => p.category === 'debut').map((piece) => (
-            <DraggableItem
-              key={piece.type}
-              type={piece.type}
-              name={piece.name}
-              imagePath={piece.imagePath}
-              category={piece.category}
-            />
-          ))}
-        </div>
-      </div>
-      
-      {/* Section des pièces d'arrivée */}
-      <div className="mb-6">
-        <div className="grid grid-cols-2 gap-3">
-          {PUZZLE_PIECES.filter(p => p.category === 'fin').map((piece) => (
-            <DraggableItem
-              key={piece.type}
-              type={piece.type}
-              name={piece.name}
-              imagePath={piece.imagePath}
-              category={piece.category}
-            />
-          ))}
-        </div>
-      </div>
-      
-      {/* Section des pièces de chemin */}
+      {/* Section des pièces de chemin uniquement */}
       <div>
         <h2 className="text-xl font-bold mb-3 text-amber-800">Pièces de chemin</h2>
         <div className="grid grid-cols-2 gap-3">
-          {PUZZLE_PIECES.filter(p => p.category === 'puzzle').map((piece) => (
+          {PUZZLE_PIECES.map((piece) => (
             <DraggableItem
               key={piece.type}
               type={piece.type}
