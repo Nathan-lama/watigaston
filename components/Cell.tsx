@@ -40,10 +40,10 @@ const Cell = ({ content, onDrop, position, onClick, transparent = false }: CellP
   
   if (transparent) {
     cellStyle = isOver && canDrop 
-      ? 'bg-yellow-100 bg-opacity-50' 
+      ? 'bg-yellow-100 bg-opacity-30' 
       : canDrop 
-        ? 'bg-blue-100 bg-opacity-30' 
-        : '';
+        ? 'bg-blue-100 bg-opacity-20' 
+        : content ? 'bg-transparent' : 'hover:bg-white hover:bg-opacity-10';
   } else {
     cellStyle = isOver && canDrop 
       ? 'bg-yellow-50 border-yellow-400' 
@@ -61,7 +61,9 @@ const Cell = ({ content, onDrop, position, onClick, transparent = false }: CellP
         margin: 0, 
         padding: 0,
         height: '100%',
-        width: '100%'
+        width: '100%',
+        // Ajouter une bordure subtile pendant le survol pour voir les cellules
+        border: isOver ? '1px dashed rgba(255, 215, 0, 0.5)' : 'none'
       }}
     >
       {renderContent()}

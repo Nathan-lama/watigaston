@@ -43,21 +43,29 @@ const GameBoard = ({ grid, setGrid, gridSize, onCheckPath }: GameBoardProps) => 
   return (
     <div className="bg-gradient-to-br from-green-100 to-green-200 p-6 rounded-lg shadow-xl border border-green-300">
       <div className="relative mx-auto" style={{ width: 'fit-content' }}>
-        {/* Image du plateau */}
-        <Image 
-          src="/Board-lvl1.png" 
-          width={500} 
-          height={300} 
-          alt="Plateau de jeu"
-          className="rounded-md"
-        />
+        {/* Image du plateau - modifiée pour rester visible pendant le drag */}
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <Image 
+            src="/Board-lvl1.png" 
+            width={500} 
+            height={300} 
+            alt="Plateau de jeu"
+            className="rounded-md"
+            priority
+            style={{ 
+              pointerEvents: 'none',
+              userSelect: 'none'
+            }}
+          />
+        </div>
         
-        {/* Grille superposée sur l'image */}
+        {/* Grille superposée sur l'image - zIndex plus élevé */}
         <div 
           className="absolute top-0 left-0 w-full h-full grid"
           style={{ 
             gridTemplateColumns: `repeat(${cols}, 1fr)`,
-            gridTemplateRows: `repeat(${rows}, 1fr)`
+            gridTemplateRows: `repeat(${rows}, 1fr)`,
+            zIndex: 2
           }}
         >
           {Array(rows).fill(null).map((_, rowIndex) => (

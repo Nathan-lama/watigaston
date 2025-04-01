@@ -6,6 +6,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
 import GameBoard from '@/components/GameBoard';
 import ItemsGallery from '@/components/ItemsGallery';
+import CustomDragLayer from '@/components/CustomDragLayer';
 import { findPath } from '@/utils/pathFinding';
 
 // Fonction pour détecter si l'appareil utilise un écran tactile
@@ -19,6 +20,23 @@ const SAMPLE_LEVEL = Array(3).fill(null).map(() => Array(5).fill(null));
 // Add some predefined obstacles
 SAMPLE_LEVEL[1][1] = 'tree';
 SAMPLE_LEVEL[2][3] = 'rock';
+
+// Options pour TouchBackend
+const touchBackendOptions = {
+  enableMouseEvents: true, // Permet l'utilisation de la souris même sur un appareil tactile
+  enableTouchEvents: true,
+  delay: 50, // Réduire le délai
+  ignoreContextMenu: true,
+  delayTouchStart: 50,
+};
+
+// Options pour HTML5Backend
+const html5Options = {
+  enableMouseEvents: true,
+  enableTouchEvents: true,
+  enableHoverOutsideTarget: true,
+  enableKeyboardEvents: true,
+};
 
 export default function Home() {
   const [gridSize, setGridSize] = useState(5); // Colonnes
@@ -50,15 +68,12 @@ export default function Home() {
     setPathResult(null);
   };
 
-  // Options pour TouchBackend
-  const touchBackendOptions = {
-    enableMouseEvents: true, // Permet l'utilisation de la souris même sur un appareil tactile
-    enableTouchEvents: true,
-    delay: 100, // Un petit délai avant de commencer le drag pour éviter les conflits avec le scroll
-  };
-
   return (
-    <DndProvider backend={isTouch ? TouchBackend : HTML5Backend} options={isTouch ? touchBackendOptions : undefined}>
+    <DndProvider 
+      backend={isTouch ? TouchBackend : HTML5Backend} 
+      options={isTouch ? touchBackendOptions : html5Options}
+    >
+      <CustomDragLayer />
       <main className="min-h-screen bg-gradient-to-b from-amber-50 to-green-50 py-12">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-bold mb-8 text-center text-amber-800">Le Petit Chaperon Rouge</h1>
