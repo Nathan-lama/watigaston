@@ -92,6 +92,7 @@ export default function Home() {
     }
     
     setPathResult(null);
+    setValidPath([]);
   }, [currentLevel]);
   
   const handleCheckPath = () => {
@@ -450,6 +451,7 @@ export default function Home() {
                 gridSize={gridSize} 
                 onCheckPath={handleCheckPath}
                 validPath={validPath}
+                lockedCells={currentLevel.lockedCells} // Passer les cellules verrouillées
                 adjustments={adjustments}
                 boardImage={currentLevel.boardImage}
               />

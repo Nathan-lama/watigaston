@@ -24,7 +24,7 @@ const TurtleAnimation = ({ path, cellSize, onAnimationComplete }: TurtleAnimatio
     setCurrentPosition(path[0]);
     setCurrentStep(0);
     
-    // Animation pas à pas
+    // Animation pas à pas avec un délai plus long (1000ms au lieu de 500ms)
     const intervalId = setInterval(() => {
       setCurrentStep(step => {
         if (step + 1 >= path.length) {
@@ -36,7 +36,7 @@ const TurtleAnimation = ({ path, cellSize, onAnimationComplete }: TurtleAnimatio
         }
         return step + 1;
       });
-    }, 500); // 500ms entre chaque pas
+    }, 1000); // 1 seconde entre chaque pas pour un mouvement plus lent
     
     return () => clearInterval(intervalId);
   }, [path, onAnimationComplete]);
@@ -60,7 +60,8 @@ const TurtleAnimation = ({ path, cellSize, onAnimationComplete }: TurtleAnimatio
         width: cellSize * 0.7,
         height: cellSize * 0.7,
         zIndex: 10,
-        transition: 'top 0.5s, left 0.5s',
+        // Transition plus lente et plus fluide
+        transition: 'top 1.2s cubic-bezier(0.4, 0, 0.2, 1), left 1.2s cubic-bezier(0.4, 0, 0.2, 1)',
         pointerEvents: 'none'
       }}
     >

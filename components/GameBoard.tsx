@@ -11,6 +11,7 @@ interface GameBoardProps {
   gridSize: number;
   onCheckPath: () => void;
   validPath: PathPosition[];
+  lockedCells: {row: number, col: number}[]; // Nouvelle prop pour les cellules verrouillées
   adjustments?: PieceAdjustments;
   boardImage?: string; // Nouvelle prop pour l'image du plateau
 }
@@ -20,7 +21,8 @@ const GameBoard = ({
   setGrid, 
   gridSize, 
   onCheckPath, 
-  validPath, 
+  validPath,
+  lockedCells = [], // Par défaut, aucune cellule n'est verrouillée
   adjustments, 
   boardImage = '/Board-lvl1.png' 
 }: GameBoardProps) => {
@@ -39,6 +41,11 @@ const GameBoard = ({
     img.src = boardImage;
   }, [boardImage]);
 
+  // Vérifiez si une cellule est verrouillée
+  const isCellLocked = (row: number, col: number): boolean => {
+    return lockedCells.some(cell => cell.row === row && cell.col === col);
+  };
+
   const handleDropOnCell = (row: number, col: number, item: { 
     type: string; 
     category: string; 
@@ -48,6 +55,12 @@ const GameBoard = ({
     uniqueId?: string;
   }) => {
     try {
+      // Vérifier si la cellule est verrouillée
+      if (isCellLocked(row, col)) {
+        console.log(`Cellule [${row}][${col}] est verrouillée, impossible de la modifier`);
+        return;
+      }
+
       console.log("Drop détecté:", item);
       
       // Vérifications de sécurité
@@ -80,6 +93,12 @@ const GameBoard = ({
   // Remove an item from a cell when clicked
   const handleCellClick = (row: number, col: number) => {
     try {
+      // Vérifier si la cellule est verrouillée
+      if (isCellLocked(row, col)) {
+        console.log(`Cellule [${row}][${col}] est verrouillée, impossible de la supprimer`);
+        return;
+      }
+
       if (!grid || !grid[row] || grid[row][col] === undefined) {
         console.error(`Cellule [${row}][${col}] inaccessible`);
         return;
@@ -164,6 +183,7 @@ const GameBoard = ({
                   transparent={true}
                   adjustments={adjustments}
                   cellSize={cellSize}
+                  isLocked={isCellLocked(rowIndex, colIndex)} // Indiquer si la cellule est verrouillée
                 />
               ))
             ))}

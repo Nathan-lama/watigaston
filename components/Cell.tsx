@@ -10,6 +10,7 @@ interface CellProps {
   transparent?: boolean;
   adjustments?: PieceAdjustments;
   cellSize?: number;
+  isLocked?: boolean; // Nouvelle prop pour indiquer si la cellule est verrouillée
 }
 
 const Cell = ({ 
@@ -19,13 +20,20 @@ const Cell = ({
   onClick, 
   transparent = false, 
   adjustments,
-  cellSize = 107
+  cellSize = 107,
+  isLocked = false
 }: CellProps) => {
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: 'gameItem',
-    // Ne pas accepter les drops sur des cellules qui contiennent déjà une pièce
-    canDrop: () => content === null,
+    // Ne pas accepter les drops sur des cellules qui contiennent déjà une pièce ou qui sont verrouillées
+    canDrop: () => content === null && !isLocked,
     drop: (item) => {
+      // Ne pas permettre le drop sur les cellules verrouillées
+      if (isLocked) {
+        console.log('Cette cellule est verrouillée et ne peut pas être modifiée');
+        return;
+      }
+      
       // Vérifications supplémentaires
       if (!item) {
         console.error('Dropped item is undefined');
@@ -48,23 +56,23 @@ const Cell = ({
       isOver: !!monitor.isOver(),
       canDrop: !!monitor.canDrop(),
     }),
-  }), [content, onDrop]);
+  }), [content, onDrop, isLocked]); // Ajouter isLocked aux dépendances
 
-  // Mise à jour du useDrag pour mieux gérer l'interaction avec les cellules
+  // Mise à jour du useDrag pour ne pas permettre le drag des cellules verrouillées
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'gameItem',
-    item: content ? { 
+    item: content && !isLocked ? { 
       type: content, 
       // Inclure la source pour savoir que ça vient d'une cellule existante
       isFromCell: true,
       position 
     } : null,
-    // Ne permettre le drag que si il y a un contenu
-    canDrag: !!content,
+    // Ne permettre le drag que si il y a un contenu et que la cellule n'est pas verrouillée
+    canDrag: !!content && !isLocked,
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
-  }), [content, position]);
+  }), [content, position, isLocked]); // Ajouter isLocked aux dépendances
 
   // Fonction pour obtenir le chemin de l'image basé sur le type de contenu
   const getImagePath = (content: string): string => {
@@ -142,7 +150,11 @@ const Cell = ({
       ? 'bg-yellow-100 bg-opacity-30' 
       : canDrop 
         ? 'bg-blue-100 bg-opacity-20' 
-        : content ? 'bg-transparent' : 'hover:bg-white hover:bg-opacity-10';
+        : content 
+          ? isLocked 
+            ? 'bg-transparent cursor-not-allowed' // Curseur différent pour cellules verrouillées
+            : 'bg-transparent' 
+          : 'hover:bg-white hover:bg-opacity-10';
   } else {
     cellStyle = isOver && canDrop 
       ? 'bg-yellow-50 border-yellow-400' 
@@ -150,25 +162,46 @@ const Cell = ({
         ? 'bg-blue-50 border-blue-300' 
         : content ? 'bg-amber-50 border-amber-300' : 'bg-gray-50 border-gray-300';
   }
+  
+  const handleClick = () => {
+    // Ne pas permettre le clic sur les cellules verrouillées
+    if (isLocked) {
+      console.log('Cette cellule est verrouillée et ne peut pas être supprimée');
+      return;
+    }
+    
+    if (onClick) {
+      onClick();
+    }
+  };
 
   return (
     <div
       ref={drop}
-      className={`cursor-pointer ${cellStyle} ${transparent ? '' : 'border-[0.5px]'} cell-debug`}
-      onClick={onClick}
+      className={`cursor-pointer ${cellStyle} ${transparent ? '' : 'border-[0.5px]'} cell-debug ${isLocked ? 'locked-cell' : ''}`}
+      onClick={handleClick}
       style={{ 
         margin: 0, 
         padding: 0,
         width: `${cellSize}px`,
         height: `${cellSize}px`,
-        border: isOver ? '1px dashed rgba(255, 215, 0, 0.5)' : (process.env.NODE_ENV === 'development' ? '1px dashed rgba(255, 0, 0, 0.1)' : 'none'),
+        border: isOver ? '1px dashed rgba(255, 215, 0, 0.5)' : (
+          isLocked && content ? '1px solid rgba(255, 0, 0, 0.2)' : (
+            process.env.NODE_ENV === 'development' ? '1px dashed rgba(255, 0, 0, 0.1)' : 'none'
+          )
+        ),
         position: 'relative',
         boxSizing: 'border-box'
       }}
     >
+      {/* Ajouter un indicateur visuel subtil pour les cellules verrouillées */}
+      {isLocked && content && (
+        <div className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full z-10 opacity-70"></div>
+      )}
+      
       {renderContent()}
       
-      {isOver && (
+      {isOver && canDrop && (
         <div 
           className="absolute inset-0 bg-yellow-200 opacity-20 rounded-sm" 
           style={{ zIndex: 1 }}
