@@ -1,5 +1,6 @@
 import { useDrop } from 'react-dnd';
 import Image from 'next/image';
+import { PieceAdjustments, getAdjustmentForPiece } from '@/utils/pieceAdjustments';
 
 interface CellProps {
   content: string | null;
@@ -7,9 +8,19 @@ interface CellProps {
   position: { row: number; col: number };
   onClick?: () => void;
   transparent?: boolean;
+  adjustments?: PieceAdjustments;
+  cellSize?: number;
 }
 
-const Cell = ({ content, onDrop, position, onClick, transparent = false }: CellProps) => {
+const Cell = ({ 
+  content, 
+  onDrop, 
+  position, 
+  onClick, 
+  transparent = false, 
+  adjustments,
+  cellSize = 107 // Modifié de 80 à 107
+}: CellProps) => {
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: 'gameItem',
     drop: (item) => onDrop(item),
@@ -40,18 +51,49 @@ const Cell = ({ content, onDrop, position, onClick, transparent = false }: CellP
     const imagePath = getImagePath(content);
     if (!imagePath) return null;
     
+    // Obtenir les ajustements pour cette pièce spécifique
+    const pieceAdjustment = adjustments ? getAdjustmentForPiece(content, adjustments) : undefined;
+    
+    // Valeurs par défaut si aucun ajustement n'est trouvé
+    const offsetX = pieceAdjustment?.offsetX || 0;
+    const offsetY = pieceAdjustment?.offsetY || 0;
+    const scale = pieceAdjustment?.scale || 1;
+    
+    // Calculer la taille de l'image en fonction de l'échelle et de la taille de la cellule
+    const baseImageSize = cellSize * 0.95; // 95% de la taille de la cellule pour maximiser l'espace
+    const imageSize = Math.round(baseImageSize * scale);
+    
     return (
-      <Image 
-        src={imagePath}
-        alt={content}
-        width={70}
-        height={70}
-        className="object-contain"
-      />
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))`,
+          zIndex: 3,
+          width: `${imageSize}px`,
+          height: `${imageSize}px`,
+        }}
+      >
+        <Image 
+          src={imagePath}
+          alt={content}
+          width={imageSize}
+          height={imageSize}
+          priority
+          style={{ 
+            objectFit: 'contain',
+            width: '100%',
+            height: '100%',
+            transform: `scale(${scale})`, // Appliquer l'échelle directement
+            transformOrigin: 'center',
+          }}
+        />
+      </div>
     );
   };
 
-  // Style dynamique selon l'état du drop et si la cellule doit être transparente
+  // Style dynamique selon l'état du drop
   let cellStyle = '';
   
   if (transparent) {
@@ -71,18 +113,26 @@ const Cell = ({ content, onDrop, position, onClick, transparent = false }: CellP
   return (
     <div
       ref={drop}
-      className={`flex items-center justify-center cursor-pointer ${cellStyle} ${transparent ? '' : 'border-[0.5px]'}`}
+      className={`cursor-pointer ${cellStyle} ${transparent ? '' : 'border-[0.5px]'} cell-debug`}
       onClick={onClick}
       style={{ 
         margin: 0, 
         padding: 0,
-        height: '100%',
-        width: '100%',
-        // Ajouter une bordure subtile pendant le survol pour voir les cellules
-        border: isOver ? '1px dashed rgba(255, 215, 0, 0.5)' : 'none'
+        width: `${cellSize}px`,
+        height: `${cellSize}px`,
+        border: isOver ? '1px dashed rgba(255, 215, 0, 0.5)' : (process.env.NODE_ENV === 'development' ? '1px dashed rgba(255, 0, 0, 0.1)' : 'none'),
+        position: 'relative',
+        boxSizing: 'border-box'
       }}
     >
       {renderContent()}
+      
+      {isOver && (
+        <div 
+          className="absolute inset-0 bg-yellow-200 opacity-20 rounded-sm" 
+          style={{ zIndex: 1 }}
+        />
+      )}
     </div>
   );
 };

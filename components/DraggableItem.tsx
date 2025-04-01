@@ -15,9 +15,6 @@ const DraggableItem = ({ type, name, imagePath, category }: DraggableItemProps) 
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
-    options: {
-      dropEffect: 'copy'
-    }
   }));
 
   // Couleurs différentes selon la catégorie
@@ -33,12 +30,10 @@ const DraggableItem = ({ type, name, imagePath, category }: DraggableItemProps) 
   return (
     <div
       ref={drag}
-      className={`p-3 mb-3 bg-white border-2 ${getBorderColor()} rounded-lg text-center cursor-grab select-none shadow-sm ${
-        isDragging ? 'opacity-30' : 'opacity-100 hover:shadow-md'
-      } transform transition-all duration-200`}
-      style={{ 
-        touchAction: 'none'
-      }}
+      className={`p-3 mb-3 bg-white border-2 ${getBorderColor()} rounded-lg text-center cursor-grab select-none shadow-sm transform transition-all duration-200 ${
+        isDragging ? 'opacity-20' : 'hover:shadow-md'
+      }`}
+      style={{ touchAction: 'none' }}
     >
       <div className="mb-1 flex justify-center">
         <Image 
@@ -46,7 +41,8 @@ const DraggableItem = ({ type, name, imagePath, category }: DraggableItemProps) 
           alt={name}
           width={80}
           height={80}
-          className="object-contain"
+          className="object-contain cursor-grab"
+          draggable={false}
         />
       </div>
       <div className="text-xs font-medium text-amber-800">{name}</div>

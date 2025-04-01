@@ -3,6 +3,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --piece-size-factor: 1;
+  --grid-gap: 0px;
 }
 
 @theme inline {

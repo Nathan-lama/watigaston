@@ -8,6 +8,7 @@ import GameBoard from '@/components/GameBoard';
 import ItemsGallery from '@/components/ItemsGallery';
 import CustomDragLayer from '@/components/CustomDragLayer';
 import { findPath } from '@/utils/pathFinding';
+import { defaultAdjustments, PieceAdjustments } from '@/utils/pieceAdjustments';
 
 // Fonction pour détecter si l'appareil utilise un écran tactile
 const isTouchDevice = () => {
@@ -27,15 +28,11 @@ const touchBackendOptions = {
   enableTouchEvents: true,
   delay: 50, // Réduire le délai
   ignoreContextMenu: true,
-  delayTouchStart: 50,
 };
 
-// Options pour HTML5Backend
+// Options pour HTML5Backend pour désactiver l'aperçu par défaut
 const html5Options = {
   enableMouseEvents: true,
-  enableTouchEvents: true,
-  enableHoverOutsideTarget: true,
-  enableKeyboardEvents: true,
 };
 
 export default function Home() {
@@ -43,6 +40,12 @@ export default function Home() {
   const [grid, setGrid] = useState<(string | null)[][]>(SAMPLE_LEVEL);
   const [pathResult, setPathResult] = useState<string | null>(null);
   const [isTouch, setIsTouch] = useState(false);
+  const [showAdjustmentTools, setShowAdjustmentTools] = useState(false);
+  
+  // Nouvel état pour les ajustements des pièces
+  const [adjustments, setAdjustments] = useState<PieceAdjustments>(defaultAdjustments);
+  // État pour suivre la pièce actuellement en cours d'ajustement
+  const [currentPiece, setCurrentPiece] = useState<string>('puzzle_1');
   
   // Vérifier si c'est un appareil tactile lors du chargement côté client
   useEffect(() => {
@@ -68,12 +71,82 @@ export default function Home() {
     setPathResult(null);
   };
 
+  // Fonction pour exporter les ajustements au format JSON
+  const exportAdjustments = () => {
+    const dataStr = JSON.stringify(adjustments, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = 'piece_adjustments.json';
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+  };
+  
+  // Fonction pour mettre à jour un ajustement spécifique
+  const updatePieceAdjustment = (piece: string, property: keyof PieceAdjustment, value: number) => {
+    setAdjustments(prev => {
+      const newAdjustments = {
+        ...prev,
+        pieces: {
+          ...prev.pieces,
+          [piece]: {
+            ...prev.pieces[piece],
+            [property]: value
+          }
+        }
+      };
+      console.log(`Ajustement de ${piece}.${property} à ${value}`, newAdjustments);
+      return newAdjustments;
+    });
+  };
+  
+  // Fonction pour mettre à jour un ajustement global du plateau
+  const updateBoardAdjustment = (property: keyof typeof adjustments.board, value: number) => {
+    setAdjustments(prev => {
+      const newAdjustments = {
+        ...prev,
+        board: {
+          ...prev.board,
+          [property]: value
+        }
+      };
+      console.log(`Ajustement du plateau.${property} à ${value}`, newAdjustments);
+      return newAdjustments;
+    });
+  };
+
+  // Fonction pour appliquer les mêmes ajustements à toutes les pièces de puzzle
+  const applyToAllPuzzlePieces = () => {
+    // Récupérer les ajustements de la pièce actuelle
+    const currentAdjustment = adjustments.pieces[currentPiece];
+    
+    // Créer un nouvel objet d'ajustements
+    const newPieces = { ...adjustments.pieces };
+    
+    // Appliquer les mêmes ajustements à toutes les pièces de puzzle
+    Object.keys(newPieces).forEach(key => {
+      if (key.startsWith('puzzle_')) {
+        newPieces[key] = { ...currentAdjustment };
+      }
+    });
+    
+    // Mettre à jour l'état des ajustements
+    setAdjustments(prev => ({
+      ...prev,
+      pieces: newPieces
+    }));
+    
+    console.log('Mêmes ajustements appliqués à toutes les pièces de puzzle:', currentAdjustment);
+  };
+
   return (
     <DndProvider 
       backend={isTouch ? TouchBackend : HTML5Backend} 
       options={isTouch ? touchBackendOptions : html5Options}
     >
-      <CustomDragLayer />
+      <CustomDragLayer adjustments={adjustments} />
       <main className="min-h-screen bg-gradient-to-b from-amber-50 to-green-50 py-12">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-bold mb-8 text-center text-amber-800">Le Petit Chaperon Rouge</h1>
@@ -88,6 +161,230 @@ export default function Home() {
             </div>
           )}
           
+          <div className="flex justify-end mb-4">
+            <button 
+              onClick={() => setShowAdjustmentTools(!showAdjustmentTools)}
+              className="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1 px-3 rounded"
+            >
+              {showAdjustmentTools ? "Masquer les réglages" : "Réglages avancés"}
+            </button>
+          </div>
+          
+          {showAdjustmentTools && (
+            <div className="mb-6 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-md font-semibold">Ajustement des pièces</h3>
+                <button 
+                  onClick={exportAdjustments}
+                  className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"
+                >
+                  Exporter les réglages
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Réglages du plateau</h4>
+                  <div className="space-y-2">
+                    <div>
+                      <div className="flex justify-between">
+                        <label className="text-xs text-gray-700">Échelle du plateau</label>
+                        <span className="text-xs font-mono bg-gray-100 px-1 rounded">{adjustments.board.scale.toFixed(2)}</span>
+                      </div>
+                      <input 
+                        type="range" 
+                        min="1.2" 
+                        max="2" 
+                        step="0.01"
+                        value={adjustments.board.scale}
+                        className="w-full"
+                        onChange={(e) => updateBoardAdjustment('scale', parseFloat(e.target.value))}
+                      />
+                    </div>
+                    <div>
+                      <div className="flex justify-between">
+                        <label className="text-xs text-gray-700">Taille des cellules (px)</label>
+                        <span className="text-xs font-mono bg-gray-100 px-1 rounded">{adjustments.board.cellSize}</span>
+                      </div>
+                      <input 
+                        type="range" 
+                        min="107" 
+                        max="120" 
+                        step="0.5"
+                        value={adjustments.board.cellSize}
+                        className="w-full"
+                        onChange={(e) => updateBoardAdjustment('cellSize', parseInt(e.target.value))}
+                      />
+                    </div>
+                    <div>
+                      <div className="flex justify-between">
+                        <label className="text-xs text-gray-700">Espacement de la grille (px)</label>
+                        <span className="text-xs font-mono bg-gray-100 px-1 rounded">{adjustments.board.gridGap}</span>
+                      </div>
+                      <input 
+                        type="range" 
+                        min="-5" 
+                        max="5" 
+                        step="1"
+                        value={adjustments.board.gridGap}
+                        className="w-full"
+                        onChange={(e) => updateBoardAdjustment('gridGap', parseInt(e.target.value))}
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Pièce à ajuster</h4>
+                  <select 
+                    className="w-full p-2 border rounded mb-2 text-sm"
+                    value={currentPiece}
+                    onChange={(e) => setCurrentPiece(e.target.value)}
+                  >
+                    {Object.keys(adjustments.pieces).map(piece => (
+                      <option key={piece} value={piece}>{piece}</option>
+                    ))}
+                  </select>
+                  
+                  {/* Ajouter un bouton pour appliquer à toutes les pièces de puzzle */}
+                  {currentPiece.startsWith('puzzle_') && (
+                    <button
+                      onClick={applyToAllPuzzlePieces}
+                      className="w-full mb-3 py-1 px-2 bg-green-100 text-green-800 text-xs font-medium rounded border border-green-200 hover:bg-green-200"
+                    >
+                      Appliquer ces réglages à toutes les pièces de puzzle
+                    </button>
+                  )}
+                  
+                  <div className="space-y-2">
+                    <div>
+                      <div className="flex justify-between">
+                        <label className="text-xs text-gray-700">Décalage X</label>
+                        <span className="text-xs font-mono bg-gray-100 px-1 rounded">{adjustments.pieces[currentPiece]?.offsetX}px</span>
+                      </div>
+                      <input 
+                        type="range" 
+                        min="-20" 
+                        max="20" 
+                        step="1"
+                        value={adjustments.pieces[currentPiece]?.offsetX || 0}
+                        className="w-full"
+                        onChange={(e) => updatePieceAdjustment(currentPiece, 'offsetX', parseInt(e.target.value))}
+                      />
+                    </div>
+                    <div>
+                      <div className="flex justify-between">
+                        <label className="text-xs text-gray-700">Décalage Y</label>
+                        <span className="text-xs text-gray-500">{adjustments.pieces[currentPiece]?.offsetY}px</span>
+                      </div>
+                      <input 
+                        type="range" 
+                        min="-20" 
+                        max="20" 
+                        step="1"
+                        value={adjustments.pieces[currentPiece]?.offsetY || 0}
+                        className="w-full"
+                        onChange={(e) => updatePieceAdjustment(currentPiece, 'offsetY', parseInt(e.target.value))}
+                      />
+                    </div>
+                    <div>
+                      <div className="flex justify-between">
+                        <label className="text-xs text-gray-700">Échelle</label>
+                        <span className="text-xs text-gray-500">{adjustments.pieces[currentPiece]?.scale.toFixed(2)}</span>
+                      </div>
+                      <input 
+                        type="range" 
+                        min="0.5" 
+                        max="2.5" // Augmenté à 2.5 pour permettre des pièces plus grandes
+                        step="0.05" // Augmenté pour des ajustements plus rapides
+                        value={adjustments.pieces[currentPiece]?.scale || 1}
+                        className="w-full"
+                        onChange={(e) => updatePieceAdjustment(currentPiece, 'scale', parseFloat(e.target.value))}
+                      />
+                      <div className="flex justify-between mt-1">
+                        <button 
+                          onClick={() => updatePieceAdjustment(currentPiece, 'scale', (adjustments.pieces[currentPiece]?.scale || 1) - 0.1)}
+                          className="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded"
+                        >
+                          -
+                        </button>
+                        <span className="text-xs">Taille</span>
+                        <button 
+                          onClick={() => updatePieceAdjustment(currentPiece, 'scale', (adjustments.pieces[currentPiece]?.scale || 1) + 0.1)}
+                          className="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-gray-100 p-3 rounded text-xs font-mono overflow-auto max-h-40">
+                <pre>{JSON.stringify(adjustments, null, 2)}</pre>
+              </div>
+
+              {/* Ajouter des boutons d'essai rapide pour vérifier que les ajustements fonctionnent */}
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button 
+                  onClick={() => updateBoardAdjustment('scale', 1.1)}
+                  className="px-2 py-1 bg-blue-500 text-white text-xs rounded"
+                >
+                  Zoomer plateau +10%
+                </button>
+                <button 
+                  onClick={() => updateBoardAdjustment('scale', 0.9)}
+                  className="px-2 py-1 bg-blue-500 text-white text-xs rounded"
+                >
+                  Dézoomer plateau -10%
+                </button>
+                <button 
+                  onClick={() => updateBoardAdjustment('cellSize', adjustments.board.cellSize + 10)}
+                  className="px-2 py-1 bg-purple-500 text-white text-xs rounded"
+                >
+                  Agrandir cellules +10px
+                </button>
+                <button 
+                  onClick={() => updateBoardAdjustment('cellSize', adjustments.board.cellSize - 10)}
+                  className="px-2 py-1 bg-purple-500 text-white text-xs rounded"
+                >
+                  Réduire cellules -10px
+                </button>
+                <button 
+                  onClick={() => updatePieceAdjustment(currentPiece, 'scale', 1.2)}
+                  className="px-2 py-1 bg-green-500 text-white text-xs rounded"
+                >
+                  Agrandir pièce
+                </button>
+                <button 
+                  onClick={() => updatePieceAdjustment(currentPiece, 'offsetX', 10)}
+                  className="px-2 py-1 bg-yellow-500 text-white text-xs rounded"
+                >
+                  Décaler à droite
+                </button>
+                <button 
+                  onClick={() => updatePieceAdjustment(currentPiece, 'scale', 1.5)}
+                  className="px-2 py-1 bg-green-500 text-white text-xs rounded"
+                >
+                  Agrandir +50%
+                </button>
+                <button 
+                  onClick={() => updatePieceAdjustment(currentPiece, 'scale', 2.0)}
+                  className="px-2 py-1 bg-green-600 text-white text-xs rounded"
+                >
+                  Agrandir +100%
+                </button>
+                <button 
+                  onClick={() => updatePieceAdjustment(currentPiece, 'scale', 0.8)}
+                  className="px-2 py-1 bg-blue-500 text-white text-xs rounded"
+                >
+                  Réduire -20%
+                </button>
+              </div>
+            </div>
+          )}
+          
           <div className="flex flex-col md:flex-row gap-8">
             <div className="md:w-2/3">
               <GameBoard 
@@ -95,6 +392,7 @@ export default function Home() {
                 setGrid={setGrid} 
                 gridSize={gridSize} 
                 onCheckPath={handleCheckPath}
+                adjustments={adjustments}
               />
               
               <div className="mt-6 flex gap-3 justify-center">
