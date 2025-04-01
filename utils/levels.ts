@@ -32,7 +32,11 @@ export const levels: Level[] = [
   {
     id: 1,
     name: "Niveau 1 - Initiation",
-    grid: createGrid(3, 5), // Utiliser notre fonction de création
+    grid: createGrid(3, 5, [
+        [null, null, null, null, null],
+        ['fin_2', null, null, 'puzzle_11', null],
+        [null, null, null, null, 'debut_1']
+      ]),
     boardImage: "/Board-lvl1.png",
     description: "Créez votre premier chemin ! Placez le Petit Chaperon Rouge et sa grand-mère, puis connectez-les avec des chemins.",
     difficulty: 'easy'

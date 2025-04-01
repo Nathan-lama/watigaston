@@ -31,6 +31,8 @@ export const defaultAdjustments: PieceAdjustments = {
     
     // Pièces de fin - échelle modifiée à 1.1
     'fin_1': { offsetX: 0, offsetY: 0, scale: 1.09 },
+    'fin_2': { offsetX: 0, offsetY: 0, scale: 1.09 },
+
     
     // Pièces de chemin - toutes avec la même valeur d'échelle 1.1
     'puzzle_1': { offsetX: 0, offsetY: 0, scale: 1.09 },
