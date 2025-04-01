@@ -39,6 +39,11 @@ export const defaultAdjustments: PieceAdjustments = {
     'puzzle_2': { offsetX: 0, offsetY: 0, scale: 1.09 },
     'puzzle_3': { offsetX: 0, offsetY: 0, scale: 1.09 },
     'puzzle_4': { offsetX: 0, offsetY: 0, scale: 1.09 },
+    'puzzle_5': { offsetX: 0, offsetY: 0, scale: 1.09 },
+    'puzzle_6': { offsetX: 0, offsetY: 0, scale: 1.09 },
+    'puzzle_7': { offsetX: 0, offsetY: 0, scale: 1.09 },
+    'puzzle_8': { offsetX: 0, offsetY: 0, scale: 1.09 },
+
   }
 };
 
