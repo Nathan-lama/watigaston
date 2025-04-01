@@ -1,103 +1,118 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { TouchBackend } from 'react-dnd-touch-backend';
+import GameBoard from '@/components/GameBoard';
+import ItemsGallery from '@/components/ItemsGallery';
+import { findPath } from '@/utils/pathFinding';
+
+// Fonction pour détecter si l'appareil utilise un écran tactile
+const isTouchDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+};
+
+// Sample predefined level - now 3x5 instead of 5x5
+const SAMPLE_LEVEL = Array(3).fill(null).map(() => Array(5).fill(null));
+// Add some predefined obstacles
+SAMPLE_LEVEL[1][1] = 'tree';
+SAMPLE_LEVEL[2][3] = 'rock';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [gridSize, setGridSize] = useState(5); // Colonnes
+  const [grid, setGrid] = useState<(string | null)[][]>(SAMPLE_LEVEL);
+  const [pathResult, setPathResult] = useState<string | null>(null);
+  const [isTouch, setIsTouch] = useState(false);
+  
+  // Vérifier si c'est un appareil tactile lors du chargement côté client
+  useEffect(() => {
+    setIsTouch(isTouchDevice());
+  }, []);
+  
+  const handleCheckPath = () => {
+    const hasValidPath = findPath(grid);
+    setPathResult(
+      hasValidPath 
+        ? "Bravo ! Il existe un chemin valide du Petit Chaperon Rouge à la maison."
+        : "Pas de chemin valide trouvé. Essayez encore !"
+    );
+  };
+  
+  const handleResetGrid = () => {
+    setGrid(Array(gridSize).fill(null).map(() => Array(gridSize).fill(null)));
+    setPathResult(null);
+  };
+  
+  const handleLoadLevel = () => {
+    setGrid(SAMPLE_LEVEL);
+    setPathResult(null);
+  };
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // Options pour TouchBackend
+  const touchBackendOptions = {
+    enableMouseEvents: true, // Permet l'utilisation de la souris même sur un appareil tactile
+    enableTouchEvents: true,
+    delay: 100, // Un petit délai avant de commencer le drag pour éviter les conflits avec le scroll
+  };
+
+  return (
+    <DndProvider backend={isTouch ? TouchBackend : HTML5Backend} options={isTouch ? touchBackendOptions : undefined}>
+      <main className="min-h-screen bg-gradient-to-b from-amber-50 to-green-50 py-12">
+        <div className="container mx-auto px-4">
+          <h1 className="text-4xl font-bold mb-8 text-center text-amber-800">Le Petit Chaperon Rouge</h1>
+          
+          {pathResult && (
+            <div className={`p-4 mb-6 rounded-lg shadow-md ${
+              pathResult.includes('Bravo') 
+                ? 'bg-green-100 text-green-800 border border-green-300' 
+                : 'bg-red-100 text-red-800 border border-red-300'
+            }`}>
+              {pathResult}
+            </div>
+          )}
+          
+          <div className="flex flex-col md:flex-row gap-8">
+            <div className="md:w-2/3">
+              <GameBoard 
+                grid={grid} 
+                setGrid={setGrid} 
+                gridSize={gridSize} 
+                onCheckPath={handleCheckPath}
+              />
+              
+              <div className="mt-6 flex gap-3 justify-center">
+                <button 
+                  onClick={handleResetGrid}
+                  className="bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-5 rounded-full transform transition-transform hover:scale-105 shadow-md"
+                >
+                  Réinitialiser
+                </button>
+                <button 
+                  onClick={handleLoadLevel}
+                  className="bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-5 rounded-full transform transition-transform hover:scale-105 shadow-md"
+                >
+                  Charger niveau
+                </button>
+              </div>
+            </div>
+            
+            <div className="md:w-1/3">
+              <ItemsGallery />
+              
+              <div className="mt-6 bg-white p-5 rounded-lg shadow-lg border border-amber-200">
+                <h2 className="text-xl font-bold mb-4 text-amber-800">Instructions</h2>
+                <p className="mb-2 text-amber-700">1. Placez le Petit Chaperon Rouge et la maison sur la grille.</p>
+                <p className="mb-2 text-amber-700">2. Ajoutez des routes pour créer un chemin.</p>
+                <p className="mb-2 text-amber-700">3. Placez des obstacles (arbres, rochers) pour compliquer le jeu.</p>
+                <p className="mb-2 text-amber-700">4. Cliquez sur "Vérifier le chemin" pour voir si un chemin valide existe.</p>
+                <p className="text-amber-700 font-medium">⚠️ Pour retirer un élément, cliquez dessus.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+    </DndProvider>
   );
 }
