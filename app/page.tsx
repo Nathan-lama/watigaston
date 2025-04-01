@@ -8,7 +8,7 @@ import GameBoard from '@/components/GameBoard';
 import ItemsGallery from '@/components/ItemsGallery';
 import CustomDragLayer from '@/components/CustomDragLayer';
 import LevelSelector from '@/components/LevelSelector';
-import { findPath } from '@/utils/pathFinding';
+import { findPath, PathPosition } from '@/utils/pathFinding';
 import { defaultAdjustments, PieceAdjustments } from '@/utils/pieceAdjustments';
 import { Level, getDefaultLevel, getLevelById } from '@/utils/levels';
 
@@ -48,6 +48,7 @@ export default function Home() {
   const [pathResult, setPathResult] = useState<string | null>(null);
   const [isTouch, setIsTouch] = useState(false);
   const [showAdjustmentTools, setShowAdjustmentTools] = useState(false);
+  const [validPath, setValidPath] = useState<PathPosition[]>([]);
   
   // Nouvel état pour les ajustements des pièces
   const [adjustments, setAdjustments] = useState<PieceAdjustments>(defaultAdjustments);
@@ -94,7 +95,10 @@ export default function Home() {
   }, [currentLevel]);
   
   const handleCheckPath = () => {
-    const hasValidPath = findPath(grid);
+    const path = findPath(grid);
+    const hasValidPath = path.length > 0;
+    
+    setValidPath(path);
     setPathResult(
       hasValidPath 
         ? "Bravo ! Il existe un chemin valide du Petit Chaperon Rouge à la maison."
@@ -103,9 +107,10 @@ export default function Home() {
   };
   
   const handleResetGrid = () => {
-    // Réinitialiser la grille au niveau actuel
+    // Réinitialiser la grille et le chemin
     setGrid([...currentLevel.grid.map(row => [...row])]);
     setPathResult(null);
+    setValidPath([]);
   };
   
   const handleLoadLevel = () => {
@@ -444,6 +449,7 @@ export default function Home() {
                 setGrid={setGrid} 
                 gridSize={gridSize} 
                 onCheckPath={handleCheckPath}
+                validPath={validPath}
                 adjustments={adjustments}
                 boardImage={currentLevel.boardImage}
               />

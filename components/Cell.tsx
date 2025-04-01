@@ -79,7 +79,7 @@ const Cell = ({
       return `/kit1/puzzle/piece${pieceNumber}.png`;
     } else if (content.startsWith('obstacle_')) {
       const pieceNumber = content.split('_')[1];
-      return `/kit1/obstacles/obstacle${pieceNumber}.png`; // Corrigé: 'obstacles' avec un 's'
+      return `/kit1/obstacles/obstacle${pieceNumber}.png`;
     }
     return ''; // Fallback si le format ne correspond pas
   };

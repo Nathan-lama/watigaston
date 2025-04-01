@@ -1,18 +1,29 @@
 import Cell from '@/components/Cell';
+import TurtleAnimation from '@/components/TurtleAnimation';
 import { useCallback, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { PieceAdjustments } from '@/utils/pieceAdjustments';
+import { PathPosition } from '@/utils/pathFinding';
 
 interface GameBoardProps {
   grid: (string | null)[][];
   setGrid: React.Dispatch<React.SetStateAction<(string | null)[][]>>;
   gridSize: number;
   onCheckPath: () => void;
+  validPath: PathPosition[];
   adjustments?: PieceAdjustments;
   boardImage?: string; // Nouvelle prop pour l'image du plateau
 }
 
-const GameBoard = ({ grid, setGrid, gridSize, onCheckPath, adjustments, boardImage = '/Board-lvl1.png' }: GameBoardProps) => {
+const GameBoard = ({ 
+  grid, 
+  setGrid, 
+  gridSize, 
+  onCheckPath, 
+  validPath, 
+  adjustments, 
+  boardImage = '/Board-lvl1.png' 
+}: GameBoardProps) => {
   const [boardWidth, setBoardWidth] = useState(0);
   const [boardHeight, setBoardHeight] = useState(0);
   const rows = 3;
@@ -157,6 +168,14 @@ const GameBoard = ({ grid, setGrid, gridSize, onCheckPath, adjustments, boardIma
               ))
             ))}
           </div>
+          
+          {/* Animation de la tortue si le chemin est valide */}
+          {validPath.length > 0 && (
+            <TurtleAnimation 
+              path={validPath} 
+              cellSize={cellSize}
+            />
+          )}
         </div>
       </div>
       <div className="mt-6 flex justify-center">

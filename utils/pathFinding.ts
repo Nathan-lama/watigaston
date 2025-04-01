@@ -1,17 +1,21 @@
 // BFS algorithm to find path from character to house
-export const findPath = (grid: (string | null)[][]): boolean => {
-  if (!grid || grid.length === 0) return false;
+export interface PathPosition {
+  row: number;
+  col: number;
+}
+
+export const findPath = (grid: (string | null)[][]): PathPosition[] => {
+  if (!grid || grid.length === 0) return [];
   
   const rows = grid.length;
   const cols = grid[0].length;
   
-  // Trouver les positions de départ et d'arrivée avec les nouveaux types
+  // Trouver les positions de départ et d'arrivée
   let startPos: [number, number] | null = null;
   let endPos: [number, number] | null = null;
   
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
-      // Recherche des pièces par leur préfixe
       if (grid[i][j]?.startsWith('debut_')) {
         startPos = [i, j];
       } else if (grid[i][j]?.startsWith('fin_')) {
@@ -21,13 +25,16 @@ export const findPath = (grid: (string | null)[][]): boolean => {
   }
   
   if (!startPos || !endPos) {
-    return false; // Départ ou arrivée manquante
+    return []; // Départ ou arrivée manquante
   }
   
   // BFS pour trouver un chemin
   const queue: [number, number][] = [startPos];
   const visited = new Set<string>();
   visited.add(`${startPos[0]},${startPos[1]}`);
+  
+  // Pour reconstruire le chemin
+  const parent = new Map<string, [number, number]>();
   
   const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]]; // Haut, bas, gauche, droite
   
@@ -36,7 +43,8 @@ export const findPath = (grid: (string | null)[][]): boolean => {
     
     // Si on a trouvé l'arrivée
     if (row === endPos[0] && col === endPos[1]) {
-      return true; // Chemin trouvé
+      // Reconstruire le chemin
+      return reconstructPath(parent, startPos, endPos);
     }
     
     for (const [dx, dy] of directions) {
@@ -56,10 +64,33 @@ export const findPath = (grid: (string | null)[][]): boolean => {
             (cell.startsWith('puzzle_') || cell.startsWith('fin_'))) {
           visited.add(key);
           queue.push([newRow, newCol]);
+          parent.set(key, [row, col]);
         }
       }
     }
   }
   
-  return false; // Aucun chemin trouvé
+  return []; // Aucun chemin trouvé
 };
+
+// Fonction pour reconstruire le chemin à partir des parents
+function reconstructPath(
+  parent: Map<string, [number, number]>, 
+  start: [number, number], 
+  end: [number, number]
+): PathPosition[] {
+  const path: PathPosition[] = [];
+  let current = end;
+  
+  // Ajouter la fin au chemin
+  path.unshift({ row: current[0], col: current[1] });
+  
+  // Reconstruire le chemin en remontant les parents
+  while (current[0] !== start[0] || current[1] !== start[1]) {
+    const key = `${current[0]},${current[1]}`;
+    current = parent.get(key)!;
+    path.unshift({ row: current[0], col: current[1] });
+  }
+  
+  return path;
+}
