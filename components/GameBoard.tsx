@@ -9,9 +9,10 @@ interface GameBoardProps {
   gridSize: number;
   onCheckPath: () => void;
   adjustments?: PieceAdjustments;
+  boardImage?: string; // Nouvelle prop pour l'image du plateau
 }
 
-const GameBoard = ({ grid, setGrid, gridSize, onCheckPath, adjustments }: GameBoardProps) => {
+const GameBoard = ({ grid, setGrid, gridSize, onCheckPath, adjustments, boardImage = '/Board-lvl1.png' }: GameBoardProps) => {
   const [boardWidth, setBoardWidth] = useState(0);
   const [boardHeight, setBoardHeight] = useState(0);
   const rows = 3;
@@ -24,29 +25,73 @@ const GameBoard = ({ grid, setGrid, gridSize, onCheckPath, adjustments }: GameBo
       setBoardWidth(img.width);
       setBoardHeight(img.height);
     };
-    img.src = '/Board-lvl1.png';
-  }, []);
+    img.src = boardImage;
+  }, [boardImage]);
 
-  const handleDropOnCell = (row: number, col: number, item: { type: string; category: string }) => {
-    // On enregistre le type complet de la pièce pour pouvoir déterminer son image
-    const newGrid = [...grid];
-    newGrid[row][col] = item.type;
-    setGrid(newGrid);
+  const handleDropOnCell = (row: number, col: number, item: { 
+    type: string; 
+    category: string; 
+    isFromCell?: boolean; 
+    position?: { row: number; col: number };
+    fromGallery?: boolean;
+    uniqueId?: string;
+  }) => {
+    try {
+      console.log("Drop détecté:", item);
+      
+      // Vérifications de sécurité
+      if (!grid) {
+        console.error("Grid is undefined");
+        return;
+      }
+      
+      // Créer une copie profonde de la grille
+      const newGrid = JSON.parse(JSON.stringify(grid));
+      
+      // Si la pièce est déplacée depuis une autre cellule, effacer l'ancienne position
+      if (item.isFromCell && item.position) {
+        const { row: oldRow, col: oldCol } = item.position;
+        if (oldRow !== row || oldCol !== col) { // Éviter de s'effacer soi-même
+          newGrid[oldRow][oldCol] = null;
+        }
+      }
+      
+      // Placer la pièce à la nouvelle position
+      newGrid[row][col] = item.type;
+      
+      console.log(`Pièce placée: ${item.type} en [${row}][${col}]`);
+      setGrid(newGrid);
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour de la grille:", error);
+    }
   };
 
   // Remove an item from a cell when clicked
   const handleCellClick = (row: number, col: number) => {
-    if (grid[row][col]) {
+    try {
+      if (!grid || !grid[row] || grid[row][col] === undefined) {
+        console.error(`Cellule [${row}][${col}] inaccessible`);
+        return;
+      }
+      
+      if (grid[row][col] === null) {
+        return; // Ne rien faire si la cellule est déjà vide
+      }
+      
+      console.log(`Suppression de la pièce en [${row}][${col}]: ${grid[row][col]}`);
+      
       const newGrid = [...grid];
       newGrid[row][col] = null;
       setGrid(newGrid);
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error);
     }
   };
 
   // Calculer l'espacement de la grille en fonction des ajustements
   const gridGap = adjustments?.board.gridGap || 0;
-  const boardScale = adjustments?.board.scale || 1.2; // Modifié de 1 à 1.2
-  const cellSize = adjustments?.board.cellSize || 80; // Taille de cellule par défaut
+  const boardScale = adjustments?.board.scale || 1.2; 
+  const cellSize = adjustments?.board.cellSize || 107;
   
   // Calculer la taille totale de la grille basée sur les cellules
   const totalGridWidth = cellSize * cols + gridGap * (cols - 1);
@@ -64,7 +109,7 @@ const GameBoard = ({ grid, setGrid, gridSize, onCheckPath, adjustments }: GameBo
           margin: '0 auto'
         }}>
           <Image 
-            src="/Board-lvl1.png" 
+            src={boardImage} 
             width={500} 
             height={300} 
             alt="Plateau de jeu"

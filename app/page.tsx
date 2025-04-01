@@ -7,8 +7,10 @@ import { TouchBackend } from 'react-dnd-touch-backend';
 import GameBoard from '@/components/GameBoard';
 import ItemsGallery from '@/components/ItemsGallery';
 import CustomDragLayer from '@/components/CustomDragLayer';
+import LevelSelector from '@/components/LevelSelector';
 import { findPath } from '@/utils/pathFinding';
 import { defaultAdjustments, PieceAdjustments } from '@/utils/pieceAdjustments';
+import { Level, getDefaultLevel, getLevelById } from '@/utils/levels';
 
 // Fonction pour détecter si l'appareil utilise un écran tactile
 const isTouchDevice = () => {
@@ -35,9 +37,14 @@ const html5Options = {
   enableMouseEvents: true,
 };
 
+// Création d'une grille vide bien définie
+const createEmptyGrid = (rows: number, cols: number): (string | null)[][] => {
+  return Array(rows).fill(null).map(() => Array(cols).fill(null));
+};
+
 export default function Home() {
   const [gridSize, setGridSize] = useState(5); // Colonnes
-  const [grid, setGrid] = useState<(string | null)[][]>(SAMPLE_LEVEL);
+  const [grid, setGrid] = useState<(string | null)[][]>(createEmptyGrid(3, 5));
   const [pathResult, setPathResult] = useState<string | null>(null);
   const [isTouch, setIsTouch] = useState(false);
   const [showAdjustmentTools, setShowAdjustmentTools] = useState(false);
@@ -47,10 +54,44 @@ export default function Home() {
   // État pour suivre la pièce actuellement en cours d'ajustement
   const [currentPiece, setCurrentPiece] = useState<string>('puzzle_1');
   
+  // Nouveau état pour gérer le niveau actuel
+  const [currentLevel, setCurrentLevel] = useState<Level>(getDefaultLevel());
+  
   // Vérifier si c'est un appareil tactile lors du chargement côté client
   useEffect(() => {
     setIsTouch(isTouchDevice());
   }, []);
+  
+  // Initialiser la grille au chargement du niveau avec plus de sécurité
+  useEffect(() => {
+    if (!currentLevel) {
+      console.error("Current level is undefined");
+      setGrid(createEmptyGrid(3, 5));
+      return;
+    }
+    
+    try {
+      // Vérifier que la grille du niveau est valide
+      if (Array.isArray(currentLevel.grid) && 
+          currentLevel.grid.length > 0 && 
+          Array.isArray(currentLevel.grid[0])) {
+        
+        // Créer une copie profonde de la grille
+        const newGrid = JSON.parse(JSON.stringify(currentLevel.grid));
+        console.log("Initialisation de la grille:", newGrid);
+        
+        setGrid(newGrid);
+      } else {
+        console.error("Invalid level grid structure");
+        setGrid(createEmptyGrid(3, 5));
+      }
+    } catch (error) {
+      console.error("Error initializing grid:", error);
+      setGrid(createEmptyGrid(3, 5));
+    }
+    
+    setPathResult(null);
+  }, [currentLevel]);
   
   const handleCheckPath = () => {
     const hasValidPath = findPath(grid);
@@ -62,7 +103,8 @@ export default function Home() {
   };
   
   const handleResetGrid = () => {
-    setGrid(Array(gridSize).fill(null).map(() => Array(gridSize).fill(null)));
+    // Réinitialiser la grille au niveau actuel
+    setGrid([...currentLevel.grid.map(row => [...row])]);
     setPathResult(null);
   };
   
@@ -141,6 +183,11 @@ export default function Home() {
     console.log('Mêmes ajustements appliqués à toutes les pièces de puzzle:', currentAdjustment);
   };
 
+  // Fonction pour gérer la sélection d'un nouveau niveau
+  const handleLevelSelect = (level: Level) => {
+    setCurrentLevel(level);
+  };
+
   return (
     <DndProvider 
       backend={isTouch ? TouchBackend : HTML5Backend} 
@@ -161,13 +208,18 @@ export default function Home() {
             </div>
           )}
           
-          <div className="flex justify-end mb-4">
+          <div className="flex justify-end mb-4 space-x-3">
             <button 
               onClick={() => setShowAdjustmentTools(!showAdjustmentTools)}
               className="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1 px-3 rounded"
             >
               {showAdjustmentTools ? "Masquer les réglages" : "Réglages avancés"}
             </button>
+          </div>
+          
+          {/* Intégrer le sélecteur de niveau */}
+          <div className="mb-6">
+            <LevelSelector currentLevelId={currentLevel.id} onSelectLevel={handleLevelSelect} />
           </div>
           
           {showAdjustmentTools && (
@@ -393,6 +445,7 @@ export default function Home() {
                 gridSize={gridSize} 
                 onCheckPath={handleCheckPath}
                 adjustments={adjustments}
+                boardImage={currentLevel.boardImage}
               />
               
               <div className="mt-6 flex gap-3 justify-center">
@@ -400,7 +453,7 @@ export default function Home() {
                   onClick={handleResetGrid}
                   className="bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-5 rounded-full transform transition-transform hover:scale-105 shadow-md"
                 >
-                  Réinitialiser
+                  Réinitialiser niveau
                 </button>
                 <button 
                   onClick={handleLoadLevel}

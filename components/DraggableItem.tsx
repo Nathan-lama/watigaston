@@ -1,5 +1,6 @@
 import { useDrag } from 'react-dnd';
 import Image from 'next/image';
+import { useId } from 'react';
 
 interface DraggableItemProps {
   type: string;
@@ -9,9 +10,20 @@ interface DraggableItemProps {
 }
 
 const DraggableItem = ({ type, name, imagePath, category }: DraggableItemProps) => {
+  // Générer un ID unique pour chaque instance d'une pièce
+  const uniqueId = useId();
+
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'gameItem',
-    item: { type, imagePath, category },
+    // Inclure un ID unique pour chaque instance de pièce
+    item: { 
+      type, 
+      imagePath, 
+      category, 
+      uniqueId,
+      // Marquer comme venant de la galerie = à cloner, pas à déplacer
+      fromGallery: true
+    },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
@@ -31,7 +43,7 @@ const DraggableItem = ({ type, name, imagePath, category }: DraggableItemProps) 
     <div
       ref={drag}
       className={`p-3 mb-3 bg-white border-2 ${getBorderColor()} rounded-lg text-center cursor-grab select-none shadow-sm transform transition-all duration-200 ${
-        isDragging ? 'opacity-20' : 'hover:shadow-md'
+        isDragging ? 'opacity-0' : 'hover:shadow-md' // Rendre invisible pendant le drag
       }`}
       style={{ touchAction: 'none' }}
     >

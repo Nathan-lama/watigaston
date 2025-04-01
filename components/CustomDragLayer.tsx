@@ -1,6 +1,7 @@
 import { useDragLayer } from 'react-dnd';
 import Image from 'next/image';
 import { PieceAdjustments, getAdjustmentForPiece } from '@/utils/pieceAdjustments';
+import { useEffect } from 'react';
 
 interface CustomDragLayerProps {
   adjustments?: PieceAdjustments;
@@ -12,6 +13,13 @@ const CustomDragLayer = ({ adjustments }: CustomDragLayerProps) => {
     currentOffset: monitor.getSourceClientOffset(),
     isDragging: monitor.isDragging(),
   }));
+
+  // Ajouter du logging pour déboguer
+  useEffect(() => {
+    if (isDragging && item) {
+      console.log("DragLayer - item en déplacement:", item);
+    }
+  }, [isDragging, item]);
 
   if (!isDragging || !currentOffset || !item) {
     return null;
