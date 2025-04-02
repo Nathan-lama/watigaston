@@ -1,5 +1,6 @@
 import DraggableItem from './DraggableItem';
 import { puzzlePieces } from '@/utils/puzzleTypes';
+import { motion } from 'framer-motion';
 
 interface ItemsGalleryProps {
   availablePieces?: string[];
@@ -35,30 +36,55 @@ const ItemsGallery = ({
   );
 
   return (
-    <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-5 rounded-lg shadow-lg border border-amber-200">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="bg-gradient-to-br from-amber-50 to-amber-100 p-5 rounded-xl shadow-xl border border-amber-200 overflow-hidden"
+    >
       <div>
-        <h2 className="text-xl font-bold mb-3 text-amber-800">Pièces disponibles</h2>
+        <h2 className="text-xl font-bold mb-4 text-amber-800 border-b border-amber-200 pb-2">
+          Pièces disponibles
+        </h2>
         {filteredPieces.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3">
-            {filteredPieces.map((piece) => (
-              <DraggableItem
+          <div className="grid grid-cols-2 gap-4">
+            {filteredPieces.map((piece, index) => (
+              <motion.div
                 key={piece.type}
-                type={piece.type}
-                name={piece.name}
-                imagePath={piece.imagePath}
-                category="puzzle"
-                directions={piece.directions}
-              />
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+              >
+                <DraggableItem
+                  type={piece.type}
+                  name={piece.name}
+                  imagePath={piece.imagePath}
+                  category="puzzle"
+                  directions={piece.directions}
+                />
+              </motion.div>
             ))}
           </div>
         ) : (
-          <p className="text-amber-700 text-sm italic">Aucune pièce disponible pour ce niveau</p>
+          <p className="text-amber-700 text-sm italic bg-amber-50 p-3 rounded-lg">
+            Aucune pièce disponible pour ce niveau
+          </p>
         )}
         
         {/* N'afficher les pièces utilisées que si elles ne sont pas verrouillées */}
         {usedButNotLocked.length > 0 && (
-          <div className="mt-4 border-t border-amber-200 pt-3">
-            <h3 className="text-sm font-medium text-amber-700 mb-2">Pièces déjà utilisées</h3>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="mt-5 border-t border-amber-200 pt-4"
+          >
+            <h3 className="text-sm font-medium text-amber-700 mb-3 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Pièces déjà utilisées
+            </h3>
             <div className="grid grid-cols-2 gap-3 opacity-50">
               {usedButNotLocked.map(pieceType => {
                 const piece = puzzlePieces[pieceType];
@@ -81,7 +107,7 @@ const ItemsGallery = ({
                 );
               })}
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
 
@@ -103,7 +129,7 @@ const ItemsGallery = ({
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

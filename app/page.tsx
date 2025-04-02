@@ -303,17 +303,24 @@ export default function Home() {
       options={isTouch ? touchBackendOptions : html5Options}
     >
       <CustomDragLayer adjustments={adjustments} />
-      <main className="min-h-screen bg-gradient-to-b from-amber-50 to-green-50 py-12">
-        <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-8 text-center text-amber-800">Gaston La Tortue</h1>
+      <main className="min-h-screen bg-gradient-to-b from-amber-50 to-green-50 py-12 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <h1 className="text-5xl font-bold mb-8 text-center text-amber-800 animate-float">
+            <span className="inline-block">🐢</span> Gaston La Tortue
+          </h1>
           
           {pathResult && (
-            <div className={`p-4 mb-6 rounded-lg shadow-md ${
+            <div className={`p-6 mb-6 rounded-xl shadow-lg transform transition-all duration-500 ${
               pathResult.includes('Bravo') 
-                ? 'bg-green-100 text-green-800 border border-green-300' 
+                ? 'bg-green-100 text-green-800 border border-green-300 animate-bounce' 
                 : 'bg-red-100 text-red-800 border border-red-300'
             }`}>
-              {pathResult}
+              <div className="flex items-center">
+                <span className="text-2xl mr-3">
+                  {pathResult.includes('Bravo') ? '🎉' : '😕'}
+                </span>
+                <span className="font-medium text-lg">{pathResult}</span>
+              </div>
             </div>
           )}
           
@@ -561,18 +568,15 @@ export default function Home() {
                 onPieceRemoved={handlePieceRemoved}
               />
               
-              <div className="mt-6 flex gap-3 justify-center">
+              <div className="mt-6 flex gap-4 justify-center">
                 <button 
                   onClick={handleResetGrid}
-                  className="bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-5 rounded-full transform transition-transform hover:scale-105 shadow-md"
+                  className="btn-primary flex items-center"
                 >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
                   Réinitialiser niveau
-                </button>
-                <button 
-                  onClick={handleLoadLevel}
-                  className="bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-5 rounded-full transform transition-transform hover:scale-105 shadow-md"
-                >
-                  Charger niveau
                 </button>
               </div>
             </div>
@@ -581,16 +585,40 @@ export default function Home() {
               <ItemsGallery 
                 availablePieces={currentLevel.availablePieces} 
                 usedPieces={usedPieces}
-                lockedPieces={lockedPieces} // Passer les pièces verrouillées
+                lockedPieces={lockedPieces}
               />
               
-              <div className="mt-6 bg-white p-5 rounded-lg shadow-lg border border-amber-200">
-                <h2 className="text-xl font-bold mb-4 text-amber-800">Instructions</h2>
-                <p className="mb-2 text-amber-700">1. Placez le Petit Chaperon Rouge et la maison sur la grille.</p>
-                <p className="mb-2 text-amber-700">2. Ajoutez des routes pour créer un chemin.</p>
-                <p className="mb-2 text-amber-700">3. Placez des obstacles (arbres, rochers) pour compliquer le jeu.</p>
-                <p className="mb-2 text-amber-700">4. Cliquez sur "Vérifier le chemin" pour voir si un chemin valide existe.</p>
-                <p className="text-amber-700 font-medium">⚠️ Pour retirer un élément, cliquez dessus.</p>
+              <div className="mt-6 bg-white p-6 rounded-xl shadow-xl border border-amber-200 glass-card">
+                <h2 className="text-xl font-bold mb-4 text-amber-800 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Instructions
+                </h2>
+                <div className="space-y-3">
+                  <p className="mb-2 text-amber-700 flex items-start">
+                    <span className="inline-block bg-amber-100 text-amber-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 font-bold">1</span>
+                    Placez le Petit Chaperon Rouge et la maison sur la grille.
+                  </p>
+                  <p className="mb-2 text-amber-700 flex items-start">
+                    <span className="inline-block bg-amber-100 text-amber-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 font-bold">2</span>
+                    Ajoutez des routes pour créer un chemin.
+                  </p>
+                  <p className="mb-2 text-amber-700 flex items-start">
+                    <span className="inline-block bg-amber-100 text-amber-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 font-bold">3</span>
+                    Placez des obstacles pour compliquer le jeu.
+                  </p>
+                  <p className="mb-2 text-amber-700 flex items-start">
+                    <span className="inline-block bg-amber-100 text-amber-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 font-bold">4</span>
+                    Cliquez sur "Vérifier le chemin" pour valider.
+                  </p>
+                </div>
+                <div className="mt-4 p-3 bg-amber-50 rounded-lg flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-amber-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <p className="text-amber-700 font-medium text-sm">Pour retirer un élément, cliquez simplement dessus.</p>
+                </div>
               </div>
             </div>
           </div>

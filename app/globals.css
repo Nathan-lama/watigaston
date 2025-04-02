@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #f8f5f0;
   --foreground: #171717;
+  --accent-color: #ff9d5c;
+  --accent-dark: #e8802e;
+  --success-color: #4ade80;
+  --error-color: #f87171;
   --piece-size-factor: 1;
   --grid-gap: 0px;
 }
@@ -16,13 +20,47 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #1a1a1a;
+    --foreground: #f5f5f5;
+    --accent-color: #ff9d5c;
+    --accent-dark: #e8802e;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Poppins', Arial, sans-serif;
+}
+
+/* Animations pour les éléments interactifs */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Effet de hover pour les boutons */
+.btn-primary {
+  @apply bg-gradient-to-r from-amber-500 to-amber-600 text-white font-medium py-3 px-6 rounded-full shadow-md hover:shadow-lg transform transition-all duration-300 hover:-translate-y-1;
+}
+
+.btn-secondary {
+  @apply bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium py-2 px-5 rounded-full shadow-md hover:shadow-lg transform transition-all duration-300 hover:-translate-y-1;
+}
+
+/* Effets de glassmorphism pour les cartes - Corrigé pour éviter bg-opacity-30 */
+.glass-card {
+  @apply bg-white/30 backdrop-blur-sm rounded-xl border border-white/20 shadow-xl;
+}
+
+/* Animation pour les cellules au survol */
+.game-cell:hover {
+  filter: brightness(1.1);
+  transform: scale(1.02);
+  transition: all 0.3s ease;
 }

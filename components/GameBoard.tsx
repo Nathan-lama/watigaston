@@ -269,26 +269,28 @@ const GameBoard = ({
   };
 
   return (
-    <div className="bg-gradient-to-br from-green-100 to-green-200 p-6 rounded-lg shadow-xl border border-green-300">
+    <div className="bg-gradient-to-br from-green-100 to-green-200 p-6 rounded-xl shadow-2xl border border-green-300 overflow-hidden">
       <div className="relative mx-auto" style={{ width: 'fit-content' }}>
-        {/* Image du plateau avec échelle ajustable */}
+        {/* Image du plateau avec échelle ajustable et effet d'ombre */}
         <div style={{ 
           position: 'relative', 
           zIndex: 1,
           transform: `scale(${boardScale})`,
           transformOrigin: 'center',
-          margin: '0 auto'
+          margin: '0 auto',
+          filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))'
         }}>
           <Image 
             src={boardImage} 
             width={500} 
             height={300} 
             alt="Plateau de jeu"
-            className="rounded-md"
+            className="rounded-lg"
             priority="grid"
             style={{ 
               pointerEvents: 'none',
               userSelect: 'none',
+              borderRadius: '12px',
             }}
           />
         </div>
@@ -334,7 +336,7 @@ const GameBoard = ({
           </div>
         </div>
 
-        {/* Animation de la tortue si le chemin est valide */}
+        {/* Animation de la tortue avec effet de rebond */}
         {validPath.length > 0 && (
           <TurtleAnimation 
             path={validPath} 
@@ -343,18 +345,24 @@ const GameBoard = ({
         )}
       </div>
 
-      <div className="mt-6 flex justify-center gap-3">
+      <div className="mt-8 flex justify-center gap-4">
         <button 
           onClick={handleCheckPathWithDirections}
-          className="bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-6 rounded-full transform transition-transform hover:scale-105 shadow-md"
+          className="btn-primary flex items-center"
         >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
           Vérifier le chemin
         </button>
         
         <button 
           onClick={resetAllDirectionsToDefault}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-full text-sm"
+          className="btn-secondary flex items-center"
         >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
           Réinitialiser directions
         </button>
       </div>

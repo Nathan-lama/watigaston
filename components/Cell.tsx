@@ -166,25 +166,25 @@ const Cell = ({
     );
   };
 
-  // Style dynamique selon l'état du drop - Ajouter un style visuel pour cellules déjà occupées
+  // Style dynamique selon l'état du drop avec des effets modernes
   let cellStyle = '';
   
   if (transparent) {
     cellStyle = isOver && canDrop 
-      ? 'bg-yellow-100 bg-opacity-30' 
+      ? 'bg-yellow-100 bg-opacity-30 shadow-inner ring-2 ring-yellow-300 ring-opacity-50' 
       : canDrop 
-        ? 'bg-blue-100 bg-opacity-20' 
+        ? 'bg-blue-100 bg-opacity-20 hover:bg-blue-100 hover:bg-opacity-30 transition-all duration-200' 
         : content 
           ? isLocked 
-            ? 'bg-transparent cursor-not-allowed' // Curseur différent pour cellules verrouillées
-            : 'bg-transparent' 
-          : 'hover:bg-white hover:bg-opacity-10';
+            ? 'bg-transparent cursor-not-allowed' 
+            : 'bg-transparent hover:bg-white hover:bg-opacity-20 transition-all duration-200' 
+          : 'hover:bg-white hover:bg-opacity-10 transition-all duration-200';
   } else {
     cellStyle = isOver && canDrop 
-      ? 'bg-yellow-50 border-yellow-400' 
+      ? 'bg-yellow-50 border-yellow-400 shadow-inner' 
       : canDrop 
-        ? 'bg-blue-50 border-blue-300' 
-        : content ? 'bg-amber-50 border-amber-300' : 'bg-gray-50 border-gray-300';
+        ? 'bg-blue-50 border-blue-300 hover:bg-blue-100 transition-all duration-200' 
+        : content ? 'bg-amber-50 border-amber-300' : 'bg-gray-50 border-gray-300 hover:bg-gray-100 transition-all duration-200';
   }
   
   const handleClick = () => {
@@ -202,7 +202,7 @@ const Cell = ({
   return (
     <div
       ref={drop}
-      className={`cursor-pointer ${cellStyle} ${transparent ? '' : 'border-[0.5px]'} cell-debug ${isLocked ? 'locked-cell' : ''}`}
+      className={`cursor-pointer game-cell ${cellStyle} ${transparent ? '' : 'border-[0.5px]'} ${isLocked ? 'locked-cell' : ''}`}
       onClick={handleClick}
       style={{ 
         margin: 0, 
@@ -215,26 +215,28 @@ const Cell = ({
           )
         ),
         position: 'relative',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        transition: 'all 0.2s ease-in-out',
+        borderRadius: '4px',
       }}
     >
-      {/* Ajouter un indicateur visuel subtil pour les cellules verrouillées */}
+      {/* Ajouter un indicateur visuel plus élégant pour les cellules verrouillées */}
       {isLocked && content && (
-        <div className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full z-10 opacity-70"></div>
+        <div className="absolute top-1 right-1 w-3 h-3 bg-gradient-to-r from-red-400 to-red-500 rounded-full z-10 opacity-70 shadow-sm"></div>
       )}
       
       {renderContent()}
       
       {isOver && canDrop && (
         <div 
-          className="absolute inset-0 bg-yellow-200 opacity-20 rounded-sm" 
+          className="absolute inset-0 bg-yellow-200 opacity-20 rounded-sm animate-pulse" 
           style={{ zIndex: 1 }}
         />
       )}
 
       {content && !isLocked && getPieceConfig(content)?.rotatable && (
         <div 
-          className="absolute top-1 left-1 w-6 h-6 bg-gray-100 bg-opacity-70 rounded-full flex items-center justify-center z-10 hover:bg-opacity-100"
+          className="absolute top-1 left-1 w-6 h-6 bg-gray-100 bg-opacity-80 backdrop-blur-sm rounded-full flex items-center justify-center z-10 hover:bg-white transition-all duration-300 shadow-sm"
           onClick={(e) => {
             e.stopPropagation();
             // Ensure position is passed correctly and defined

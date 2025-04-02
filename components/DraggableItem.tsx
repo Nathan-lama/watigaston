@@ -3,8 +3,6 @@ import Image from 'next/image';
 import { useId } from 'react';
 import { Direction, rotateDirectionsClockwise, getPieceConfig } from '@/utils/puzzleTypes';
 import { useState } from 'react';
-// Import a simple div for now as a temporary replacement
-// import DirectionVisualizer from './DirectionVisualizer';
 
 interface DraggableItemProps {
   type: string;
@@ -50,14 +48,14 @@ const DraggableItem = ({ type, name, imagePath, category, directions: initialDir
     }),
   }), [type, imagePath, category, directions, rotation]); // Ajouter rotation aux dépendances
 
-  // Couleurs différentes selon la catégorie
+  // Couleurs différentes selon la catégorie avec des dégradés
   const getBorderColor = () => {
     switch (category) {
-      case 'debut': return 'border-green-400 hover:border-green-600';
-      case 'fin': return 'border-red-400 hover:border-red-600';
-      case 'puzzle': return 'border-amber-200 hover:border-amber-400';
-      case 'obstacle': return 'border-purple-300 hover:border-purple-500'; // Nouvelle couleur pour les obstacles
-      default: return 'border-amber-200 hover:border-amber-400';
+      case 'debut': return 'from-green-400 to-green-500 shadow-green-200';
+      case 'fin': return 'from-red-400 to-red-500 shadow-red-200';
+      case 'puzzle': return 'from-amber-300 to-amber-400 shadow-amber-200';
+      case 'obstacle': return 'from-purple-400 to-purple-500 shadow-purple-200'; 
+      default: return 'from-amber-300 to-amber-400 shadow-amber-200';
     }
   };
 
@@ -80,9 +78,9 @@ const DraggableItem = ({ type, name, imagePath, category, directions: initialDir
 
   return (
     <div
-      className={`p-3 mb-3 bg-white border-2 ${getBorderColor()} rounded-lg text-center select-none shadow-sm transform transition-all duration-200 ${
-        isDragging ? 'opacity-0' : 'hover:shadow-md'
-      }`}
+      className={`relative p-3 mb-3 bg-white border-2 border-transparent rounded-xl text-center select-none transition-all duration-300 ${
+        isDragging ? 'opacity-0' : 'hover:shadow-lg hover:-translate-y-1'
+      } bg-gradient-to-br ${getBorderColor()}`}
       style={{ touchAction: 'none' }}
     >
       <div className="mb-1 flex justify-center relative">
@@ -98,19 +96,19 @@ const DraggableItem = ({ type, name, imagePath, category, directions: initialDir
           />
         </div>
         
-        {/* Bouton de rotation pour les pièces qui peuvent être pivotées */}
+        {/* Bouton de rotation moderne */}
         {getPieceConfig(type)?.rotatable && (
           <button 
-            className="absolute -top-2 -right-2 bg-gray-200 hover:bg-gray-300 rounded-full w-6 h-6 flex items-center justify-center shadow-sm"
+            className="absolute -top-2 -right-2 bg-white hover:bg-gray-100 rounded-full w-7 h-7 flex items-center justify-center shadow-md transition-all duration-200"
             onClick={handleRotate}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
         )}
       </div>
-      <div className="text-xs font-medium text-amber-800">{name}</div>
+      <div className="text-xs font-medium text-white shadow-text">{name}</div>
       {renderDirections()}
     </div>
   );
