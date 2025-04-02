@@ -1,3 +1,5 @@
+import { prisma } from './db';
+
 // Configuration des niveaux du jeu
 
 export interface Level {
@@ -45,9 +47,7 @@ function generateLockedCells(grid: (string | null)[][]): {row: number, col: numb
   return locked;
 }
 
-// Niveau vide 3x5 bien défini
-const EMPTY_GRID: (string | null)[][] = createGrid(3, 5);
-
+// Données en mémoire pour la compatibilité avec l'existant
 export const levels: Level[] = [
   {
     id: 1,
@@ -111,9 +111,58 @@ export const levels: Level[] = [
   }
 ];
 
+// Récupérer tous les niveaux depuis la base de données
+export async function getAllLevels(): Promise<Level[]> {
+  try {
+    const dbLevels = await prisma.level.findMany({
+      where: { published: true },
+      orderBy: { id: 'asc' },
+    });
+    
+    return dbLevels.map(level => ({
+      id: level.id,
+      name: level.name,
+      description: level.description || '',
+      difficulty: level.difficulty as 'easy' | 'medium' | 'hard',
+      boardImage: level.boardImage,
+      grid: level.gridData as (string | null)[][],
+      lockedCells: level.lockedCellsData as { row: number; col: number }[],
+      availablePieces: level.availablePieces as string[], // Parse JSON
+    }));
+  } catch (error) {
+    console.error('Erreur lors de la récupération des niveaux:', error);
+    // Fallback aux niveaux en mémoire
+    return levels;
+  }
+}
+
 // Récupérer un niveau par son ID
-export function getLevelById(id: number): Level | undefined {
-  return levels.find(level => level.id === id);
+export async function getLevelById(id: number): Promise<Level | undefined> {
+  try {
+    const level = await prisma.level.findUnique({
+      where: { id },
+    });
+    
+    if (!level) {
+      // Fallback au niveau en mémoire
+      return levels.find(l => l.id === id);
+    }
+    
+    return {
+      id: level.id,
+      name: level.name,
+      description: level.description || '',
+      difficulty: level.difficulty as 'easy' | 'medium' | 'hard',
+      boardImage: level.boardImage,
+      grid: level.gridData as (string | null)[][],
+      lockedCells: level.lockedCellsData as { row: number; col: number }[],
+      availablePieces: level.availablePieces as string[], // Parse JSON
+    };
+  } catch (error) {
+    console.error(`Erreur lors de la récupération du niveau ${id}:`, error);
+    // Fallback au niveau en mémoire
+    return levels.find(l => l.id === id);
+  }
 }
 
 // Récupérer un niveau par défaut avec garantie d'une bonne structure et cellules verrouillées

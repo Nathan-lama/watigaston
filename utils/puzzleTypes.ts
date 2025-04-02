@@ -86,6 +86,32 @@ export const puzzlePieces: Record<string, PuzzlePieceConfig> = {
     name: 'Chemin horizontal',
     directions: ['E', 'W'],
     imagePath: '/kit1/puzzle/piece8.png'
+  },
+  
+  // Obstacles
+  'obstacle_1': {
+    type: 'obstacle_1',
+    name: 'Rocher',
+    directions: [], // Les obstacles n'ont pas de directions
+    imagePath: '/kit1/obstacles/obstacle1.png'
+  },
+  'obstacle_2': {
+    type: 'obstacle_2',
+    name: 'Arbre',
+    directions: [],
+    imagePath: '/kit1/obstacles/obstacle2.png'
+  },
+  'obstacle_3': {
+    type: 'obstacle_3',
+    name: 'Buisson',
+    directions: [],
+    imagePath: '/kit1/obstacles/obstacle3.png'
+  },
+  'obstacle_4': {
+    type: 'obstacle_4',
+    name: 'Flaque',
+    directions: [],
+    imagePath: '/kit1/obstacles/obstacle4.png'
   }
 };
 

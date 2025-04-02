@@ -13,6 +13,7 @@ import { defaultAdjustments, PieceAdjustments } from '@/utils/pieceAdjustments';
 import { Level, getDefaultLevel, getLevelById } from '@/utils/levels';
 // Ajouter l'import manquant
 import { getPieceConfig } from '@/utils/puzzleTypes';
+import Link from 'next/link';
 
 // Fonction pour détecter si l'appareil utilise un écran tactile
 const isTouchDevice = () => {
@@ -603,6 +604,14 @@ export default function Home() {
                 </div>
               </div>
             </div>
+          </div>
+          <div className="flex justify-center mt-6">
+            <Link 
+              href="/custom-levels" 
+              className="btn-secondary"
+            >
+              Mes Niveaux Personnalisés
+            </Link>
           </div>
         </div>
       </main>

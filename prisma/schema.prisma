@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("USER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  levels    Level[]
+}
+
+model Level {
+  id              Int      @id @default(autoincrement())
+  name            String
+  description     String?
+  difficulty      String
+  boardImage      String   @default("/Board-lvl1.png")
+  gridData        Json
+  lockedCellsData Json
+  availablePieces Json
+  published       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  userId          String
+  createdBy       User     @relation(fields: [userId], references: [id])
+}
