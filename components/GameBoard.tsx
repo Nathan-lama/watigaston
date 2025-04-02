@@ -5,8 +5,6 @@ import Image from 'next/image';
 import { PieceAdjustments } from '@/utils/pieceAdjustments';
 import { PathPosition } from '@/utils/pathFinding';
 import { Direction, getPieceConfig, rotateDirectionsClockwise } from '@/utils/puzzleTypes';
-import ConnectionDebugger from '@/components/ConnectionDebugger';
-import { debugPuzzle6Issue } from '@/utils/debugHelpers';
 
 interface GameBoardProps {
   grid: (string | null)[][];
@@ -17,8 +15,6 @@ interface GameBoardProps {
   lockedCells: {row: number, col: number}[]; // Nouvelle prop pour les cellules verrouillées
   adjustments?: PieceAdjustments;
   boardImage?: string; // Nouvelle prop pour l'image du plateau
-  showDebugger?: boolean; // Nouvelle prop pour afficher/masquer le débogueur
-  showDirections?: boolean; // Nouvelle prop
 }
 
 const GameBoard = ({ 
@@ -30,8 +26,6 @@ const GameBoard = ({
   lockedCells = [], // Par défaut, aucune cellule n'est verrouillée
   adjustments, 
   boardImage = '/Board-lvl1.png',
-  showDebugger = false,
-  showDirections = false,
 }: GameBoardProps) => {
   const [boardWidth, setBoardWidth] = useState(0);
   const [boardHeight, setBoardHeight] = useState(0);
@@ -253,13 +247,6 @@ const GameBoard = ({
     console.log("Directions réinitialisées aux valeurs par défaut");
   };
 
-  // Fonction de diagnostic spécifique pour les problèmes de validation
-  const handleDiagnosePath = () => {
-    console.log("=== DIAGNOSTIC DU CHEMIN ===");
-    console.log("Appel du débogueur spécifique...");
-    debugPuzzle6Issue(grid, cellDirections);
-  };
-
   return (
     <div className="bg-gradient-to-br from-green-100 to-green-200 p-6 rounded-lg shadow-xl border border-green-300">
       <div className="relative mx-auto" style={{ width: 'fit-content' }}>
@@ -319,7 +306,6 @@ const GameBoard = ({
                   cellSize={cellSize}
                   isLocked={isCellLocked(rowIndex, colIndex)} // Indiquer si la cellule est verrouillée
                   directions={cellDirections[`${rowIndex},${colIndex}`]}
-                  showDirections={showDirections}
                   rotation={cellRotations[`${rowIndex},${colIndex}`] || 0} // Passer la rotation
                 />
               ))
@@ -350,20 +336,7 @@ const GameBoard = ({
         >
           Réinitialiser directions
         </button>
-        
-        {/* Nouveau bouton de diagnostic */}
-        <button 
-          onClick={handleDiagnosePath}
-          className="bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-full text-sm"
-        >
-          Diagnostiquer chemin
-        </button>
       </div>
-
-      {/* Ajouter le débogueur si showDebugger est true */}
-      {showDebugger && (
-        <ConnectionDebugger grid={grid} cellDirections={cellDirections} />
-      )}
     </div>
   );
 };

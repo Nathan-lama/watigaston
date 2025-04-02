@@ -51,8 +51,6 @@ export default function Home() {
   const [isTouch, setIsTouch] = useState(false);
   const [showAdjustmentTools, setShowAdjustmentTools] = useState(false);
   const [validPath, setValidPath] = useState<PathPosition[]>([]);
-  const [showDebugger, setShowDebugger] = useState(false);
-  const [showDirections, setShowDirections] = useState(false);
   
   // Nouvel état pour les ajustements des pièces
   const [adjustments, setAdjustments] = useState<PieceAdjustments>(defaultAdjustments);
@@ -249,7 +247,7 @@ export default function Home() {
       <CustomDragLayer adjustments={adjustments} />
       <main className="min-h-screen bg-gradient-to-b from-amber-50 to-green-50 py-12">
         <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-8 text-center text-amber-800">Le Petit Chaperon Rouge</h1>
+          <h1 className="text-4xl font-bold mb-8 text-center text-amber-800">Gaston La Tortue</h1>
           
           {pathResult && (
             <div className={`p-4 mb-6 rounded-lg shadow-md ${
@@ -267,22 +265,6 @@ export default function Home() {
               className="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1 px-3 rounded"
             >
               {showAdjustmentTools ? "Masquer les réglages" : "Réglages avancés"}
-            </button>
-            
-            {/* Ajouter un bouton pour activer/désactiver le débogueur */}
-            <button 
-              onClick={() => setShowDebugger(!showDebugger)}
-              className={`text-sm ${showDebugger ? 'bg-blue-200 hover:bg-blue-300 text-blue-700' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'} font-medium py-1 px-3 rounded`}
-            >
-              {showDebugger ? "Masquer débogueur" : "Afficher débogueur"}
-            </button>
-            
-            {/* Nouveau bouton pour afficher les directions */}
-            <button 
-              onClick={() => setShowDirections(!showDirections)}
-              className={`text-sm ${showDirections ? 'bg-purple-200 hover:bg-purple-300 text-purple-700' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'} font-medium py-1 px-3 rounded`}
-            >
-              {showDirections ? "Masquer directions" : "Afficher directions"}
             </button>
           </div>
           
@@ -517,8 +499,6 @@ export default function Home() {
                 lockedCells={currentLevel.lockedCells} // Passer les cellules verrouillées
                 adjustments={adjustments}
                 boardImage={currentLevel.boardImage}
-                showDebugger={showDebugger} // Passer la prop showDebugger
-                showDirections={showDirections} // Passer la nouvelle prop
               />
               
               <div className="mt-6 flex gap-3 justify-center">

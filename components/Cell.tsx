@@ -2,7 +2,6 @@ import { useDrop, useDrag } from 'react-dnd';
 import Image from 'next/image';
 import { PieceAdjustments, getAdjustmentForPiece } from '@/utils/pieceAdjustments';
 import { Direction, rotateDirectionsClockwise, getPieceConfig } from '@/utils/puzzleTypes';
-import DirectionVisualizer from './DirectionVisualizer';
 
 interface CellProps {
   content: string | null;
@@ -15,7 +14,6 @@ interface CellProps {
   isLocked?: boolean; // Nouvelle prop pour indiquer si la cellule est verrouillée
   directions?: Direction[]; // Nouvelle prop pour les directions
   onRotate?: (position: { row: number; col: number }) => void;
-  showDirections?: boolean; // Ajouter cette prop
   rotation?: number; // Nouvelle prop pour la rotation visuelle
 }
 
@@ -30,7 +28,6 @@ const Cell = ({
   isLocked = false,
   directions,
   onRotate,
-  showDirections = false, // Ajouter cette prop
   rotation = 0, // Ajouter la prop avec valeur par défaut 0
 }: CellProps) => {
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
@@ -227,13 +224,6 @@ const Cell = ({
       )}
       
       {renderContent()}
-      
-      {/* Visualiseur de directions - ajouté pour déboguer */}
-      {showDirections && content && directions && (
-        <div className="absolute top-0 right-0 z-20">
-          <DirectionVisualizer directions={directions} size={30} />
-        </div>
-      )}
       
       {isOver && canDrop && (
         <div 
