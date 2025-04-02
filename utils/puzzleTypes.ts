@@ -36,7 +36,6 @@ export const puzzlePieces: Record<string, PuzzlePieceConfig> = {
     imagePath: '/kit1/fin/piece2.png'
   },
   
-  // Pièces de chemins droits
   'puzzle_1': { 
     type: 'puzzle_1',
     name: 'Chemin horizontal',
@@ -59,33 +58,32 @@ export const puzzlePieces: Record<string, PuzzlePieceConfig> = {
   },
   'puzzle_4': { 
     type: 'puzzle_4',
-    name: 'Virage Nord-Ouest',
+    name: 'Chemin horizontal',
     directions: ['E', 'W'], 
     imagePath: '/kit1/puzzle/piece4.png'
   },
   'puzzle_5': { 
     type: 'puzzle_5',
-    name: 'Virage Sud-Est',
-    directions: ['S', 'W'], 
+    name: 'Virage Nord-Est',
+    directions: ['N', 'E'], 
     imagePath: '/kit1/puzzle/piece5.png'
   },
   'puzzle_6': { 
     type: 'puzzle_6',
-    name: 'Virage Sud-Ouest',
+    name: 'Chemin horizontal',
     directions: ['E', 'W'],
     imagePath: '/kit1/puzzle/piece6.png'
   },
   
-  // Pièces de carrefour
   'puzzle_7': { 
     type: 'puzzle_7',
-    name: 'Carrefour en T',
+    name: 'Chemin horizontal',
     directions: ['E', 'W'],
     imagePath: '/kit1/puzzle/piece7.png'
   },
   'puzzle_8': { 
     type: 'puzzle_8',
-    name: 'Carrefour en croix',
+    name: 'Chemin horizontal',
     directions: ['E', 'W'],
     imagePath: '/kit1/puzzle/piece8.png'
   }
