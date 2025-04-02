@@ -15,6 +15,8 @@ interface GameBoardProps {
   lockedCells: {row: number, col: number}[]; // Nouvelle prop pour les cellules verrouillées
   adjustments?: PieceAdjustments;
   boardImage?: string; // Nouvelle prop pour l'image du plateau
+  onPiecePlaced?: (pieceType: string) => void;   // Nouvelle prop
+  onPieceRemoved?: (pieceType: string) => void;  // Nouvelle prop
 }
 
 const GameBoard = ({ 
@@ -26,6 +28,8 @@ const GameBoard = ({
   lockedCells = [], // Par défaut, aucune cellule n'est verrouillée
   adjustments, 
   boardImage = '/Board-lvl1.png',
+  onPiecePlaced,
+  onPieceRemoved,
 }: GameBoardProps) => {
   const [boardWidth, setBoardWidth] = useState(0);
   const [boardHeight, setBoardHeight] = useState(0);
@@ -85,7 +89,13 @@ const GameBoard = ({
       if (item.isFromCell && item.position) {
         const { row: oldRow, col: oldCol } = item.position;
         if (oldRow !== row || oldCol !== col) { // Éviter de s'effacer soi-même
+          const removedPiece = grid[oldRow][oldCol];
           newGrid[oldRow][oldCol] = null;
+          
+          // Notifier le parent qu'une pièce a été enlevée
+          if (removedPiece && onPieceRemoved) {
+            onPieceRemoved(removedPiece);
+          }
           
           // Effacer également les directions associées
           const newDirections = { ...cellDirections };
@@ -96,6 +106,11 @@ const GameBoard = ({
       
       // Placer la pièce à la nouvelle position
       newGrid[row][col] = item.type;
+      
+      // Notifier le parent qu'une pièce a été placée
+      if (!item.isFromCell && onPiecePlaced) {
+        onPiecePlaced(item.type);
+      }
       
       // Conserver les directions personnalisées après rotation
       if (item.directions) {
@@ -151,11 +166,17 @@ const GameBoard = ({
         return; // Ne rien faire si la cellule est déjà vide
       }
       
-      console.log(`Suppression de la pièce en [${row}][${col}]: ${grid[row][col]}`);
+      const removedPiece = grid[row][col];
+      console.log(`Suppression de la pièce en [${row}][${col}]: ${removedPiece}`);
       
       const newGrid = [...grid];
       newGrid[row][col] = null;
       setGrid(newGrid);
+      
+      // Notifier le parent qu'une pièce a été enlevée
+      if (removedPiece && onPieceRemoved) {
+        onPieceRemoved(removedPiece);
+      }
     } catch (error) {
       console.error("Erreur lors de la suppression:", error);
     }

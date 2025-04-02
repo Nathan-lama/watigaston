@@ -68,7 +68,7 @@ export const levels: Level[] = [
     description: "Créez votre premier chemin ! Placez le Petit Chaperon Rouge et sa grand-mère, puis connectez-les avec des chemins.",
     difficulty: 'easy',
     // Pièces disponibles pour le niveau 1
-    availablePieces: ['puzzle_1', 'puzzle_2', 'puzzle_4']
+    availablePieces: ['puzzle_2', 'puzzle_4', 'puzzle_6'],
   },
   {
     id: 2,
@@ -88,7 +88,7 @@ export const levels: Level[] = [
     description: "Complétez le chemin commencé pour permettre au Petit Chaperon Rouge d'atteindre sa destination.",
     difficulty: 'easy',
     // Pièces disponibles pour le niveau 2
-    availablePieces: ['puzzle_1', 'puzzle_4', 'puzzle_5']
+    availablePieces: ['puzzle_1', 'puzzle_4', 'puzzle_5', 'puzzle_6'],
   },
   {
     id: 3,

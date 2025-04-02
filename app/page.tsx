@@ -60,6 +60,12 @@ export default function Home() {
   // Nouveau état pour gérer le niveau actuel
   const [currentLevel, setCurrentLevel] = useState<Level>(getDefaultLevel());
   
+  // Ajouter un état pour suivre les pièces qui ont été placées sur le plateau
+  const [usedPieces, setUsedPieces] = useState<string[]>([]);
+  
+  // Nouvel état pour suivre les pièces verrouillées
+  const [lockedPieces, setLockedPieces] = useState<string[]>([]);
+  
   // Vérifier si c'est un appareil tactile lors du chargement côté client
   useEffect(() => {
     setIsTouch(isTouchDevice());
@@ -95,6 +101,31 @@ export default function Home() {
     
     setPathResult(null);
     setValidPath([]);
+
+    // Initialiser les pièces utilisées
+    const initialUsedPieces: string[] = [];
+    if (currentLevel && currentLevel.grid) {
+      currentLevel.grid.forEach(row => {
+        row.forEach(cell => {
+          if (cell && cell.startsWith('puzzle_')) {
+            initialUsedPieces.push(cell);
+          }
+        });
+      });
+    }
+    setUsedPieces(initialUsedPieces);
+
+    // Extraire les pièces de puzzle verrouillées
+    const initialLockedPieces: string[] = [];
+    if (currentLevel && currentLevel.grid && currentLevel.lockedCells) {
+      currentLevel.lockedCells.forEach(cell => {
+        const pieceType = currentLevel.grid[cell.row][cell.col];
+        if (pieceType && pieceType.startsWith('puzzle_')) {
+          initialLockedPieces.push(pieceType);
+        }
+      });
+    }
+    setLockedPieces(initialLockedPieces);
   }, [currentLevel]);
   
   const handleCheckPath = (cellDirections?: Record<string, Direction[]>) => {
@@ -152,11 +183,23 @@ export default function Home() {
     );
   };
   
+  // Mise à jour de la fonction handleResetGrid pour réinitialiser aussi les pièces utilisées
   const handleResetGrid = () => {
     // Réinitialiser la grille et le chemin
     setGrid([...currentLevel.grid.map(row => [...row])]);
     setPathResult(null);
     setValidPath([]);
+    
+    // Réinitialiser les pièces utilisées - garder seulement celles qui sont déjà placées au départ
+    const initialUsedPieces: string[] = [];
+    currentLevel.grid.forEach(row => {
+      row.forEach(cell => {
+        if (cell && cell.startsWith('puzzle_')) {
+          initialUsedPieces.push(cell);
+        }
+      });
+    });
+    setUsedPieces(initialUsedPieces);
   };
   
   const handleLoadLevel = () => {
@@ -237,6 +280,21 @@ export default function Home() {
   // Fonction pour gérer la sélection d'un nouveau niveau
   const handleLevelSelect = (level: Level) => {
     setCurrentLevel(level);
+  };
+
+  // Fonction de callback à passer au GameBoard pour mettre à jour les pièces utilisées
+  const handlePiecePlaced = (pieceType: string) => {
+    console.log(`Pièce placée: ${pieceType}`);
+    if (pieceType.startsWith('puzzle_')) {
+      setUsedPieces(prev => [...prev, pieceType]);
+    }
+  };
+  
+  const handlePieceRemoved = (pieceType: string) => {
+    console.log(`Pièce enlevée: ${pieceType}`);
+    if (pieceType.startsWith('puzzle_')) {
+      setUsedPieces(prev => prev.filter(p => p !== pieceType));
+    }
   };
 
   return (
@@ -494,11 +552,13 @@ export default function Home() {
                 grid={grid} 
                 setGrid={setGrid} 
                 gridSize={gridSize} 
-                onCheckPath={handleCheckPath} // Passer la fonction mise à jour
+                onCheckPath={handleCheckPath}
                 validPath={validPath}
-                lockedCells={currentLevel.lockedCells} // Passer les cellules verrouillées
+                lockedCells={currentLevel.lockedCells}
                 adjustments={adjustments}
                 boardImage={currentLevel.boardImage}
+                onPiecePlaced={handlePiecePlaced}
+                onPieceRemoved={handlePieceRemoved}
               />
               
               <div className="mt-6 flex gap-3 justify-center">
@@ -518,8 +578,11 @@ export default function Home() {
             </div>
             
             <div className="md:w-1/3">
-              {/* Passer les pièces disponibles du niveau actuel */}
-              <ItemsGallery availablePieces={currentLevel.availablePieces} />
+              <ItemsGallery 
+                availablePieces={currentLevel.availablePieces} 
+                usedPieces={usedPieces}
+                lockedPieces={lockedPieces} // Passer les pièces verrouillées
+              />
               
               <div className="mt-6 bg-white p-5 rounded-lg shadow-lg border border-amber-200">
                 <h2 className="text-xl font-bold mb-4 text-amber-800">Instructions</h2>
