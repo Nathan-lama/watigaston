@@ -9,6 +9,8 @@ export interface Level {
   boardImage: string; // Chemin vers l'image du plateau
   description: string;
   difficulty: 'easy' | 'medium' | 'hard';
+  // Ajouter la liste des pièces disponibles pour ce niveau
+  availablePieces: string[];
 }
 
 // Fonction de sécurité pour créer une grille valide
@@ -64,7 +66,9 @@ export const levels: Level[] = [
     ],
     boardImage: "/Board-lvl1.png",
     description: "Créez votre premier chemin ! Placez le Petit Chaperon Rouge et sa grand-mère, puis connectez-les avec des chemins.",
-    difficulty: 'easy'
+    difficulty: 'easy',
+    // Pièces disponibles pour le niveau 1
+    availablePieces: ['puzzle_1', 'puzzle_2', 'puzzle_4']
   },
   {
     id: 2,
@@ -82,7 +86,9 @@ export const levels: Level[] = [
     ])),
     boardImage: "/Board-lvl1.png",
     description: "Complétez le chemin commencé pour permettre au Petit Chaperon Rouge d'atteindre sa destination.",
-    difficulty: 'easy'
+    difficulty: 'easy',
+    // Pièces disponibles pour le niveau 2
+    availablePieces: ['puzzle_1', 'puzzle_4', 'puzzle_5']
   },
   {
     id: 3,
@@ -99,7 +105,9 @@ export const levels: Level[] = [
     ])),
     boardImage: "/Board-lvl1.png",
     description: "Un niveau plus complexe avec des pièces déjà placées. Complétez le chemin pour gagner !",
-    difficulty: 'medium'
+    difficulty: 'medium',
+    // Pièces disponibles pour le niveau 3
+    availablePieces: ['puzzle_1', 'puzzle_2', 'puzzle_3', 'puzzle_6']
   }
 ];
 

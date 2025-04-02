@@ -518,7 +518,8 @@ export default function Home() {
             </div>
             
             <div className="md:w-1/3">
-              <ItemsGallery />
+              {/* Passer les pièces disponibles du niveau actuel */}
+              <ItemsGallery availablePieces={currentLevel.availablePieces} />
               
               <div className="mt-6 bg-white p-5 rounded-lg shadow-lg border border-amber-200">
                 <h2 className="text-xl font-bold mb-4 text-amber-800">Instructions</h2>
