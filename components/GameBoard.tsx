@@ -15,7 +15,7 @@ interface GameBoardProps {
   lockedCells: {row: number, col: number}[]; // Nouvelle prop pour les cellules verrouillées
   adjustments?: PieceAdjustments;
   boardImage?: string; // Nouvelle prop pour l'image du plateau
-  onPiecePlaced?: (pieceType: string) => void;   // Nouvelle prop
+  onPiecePlaced?: (pieceType: string, row: number, col: number) => void;   // Nouvelle prop
   onPieceRemoved?: (pieceType: string) => void;  // Nouvelle prop
   handleResetGrid: () => void; // Add the prop
 }
@@ -109,9 +109,9 @@ const GameBoard = ({
       // Placer la pièce à la nouvelle position
       newGrid[row][col] = item.type;
       
-      // Notifier le parent qu'une pièce a été placée
+      // Notifier le parent qu'une pièce a été placée avec la position
       if (!item.isFromCell && onPiecePlaced) {
-        onPiecePlaced(item.type);
+        onPiecePlaced(item.type, row, col);
       }
       
       // Conserver les directions personnalisées après rotation

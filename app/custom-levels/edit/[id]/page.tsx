@@ -144,6 +144,20 @@ export default function EditCustomLevel() {
     });
   };
 
+  // Add this function to automatically lock cells when pieces are placed
+  const handlePiecePlaced = (row: number, col: number, pieceType: string) => {
+    console.log(`Piece placed at [${row},${col}]: ${pieceType}`);
+    // Automatically lock the cell when a piece is placed
+    if (!lockedCells.some(cell => cell.row === row && cell.col === col)) {
+      setLockedCells([...lockedCells, { row, col }]);
+    }
+    
+    // Also update the usedPieces list if it's a puzzle piece
+    if (pieceType.startsWith('puzzle_')) {
+      setUsedPieces(prev => [...prev, pieceType]);
+    }
+  };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
   }
@@ -213,7 +227,19 @@ export default function EditCustomLevel() {
             <div className="md:w-2/3">
               <GameBoard
                 grid={grid}
-                setGrid={setGrid}
+                setGrid={(newGrid) => {
+                  // When grid is updated, check for new pieces and lock them
+                  setGrid(newGrid);
+                  
+                  // Compare the new grid with the current grid to find newly placed pieces
+                  for (let row = 0; row < newGrid.length; row++) {
+                    for (let col = 0; col < newGrid[row].length; col++) {
+                      if (newGrid[row][col] && (!grid[row] || grid[row][col] !== newGrid[row][col])) {
+                        handlePiecePlaced(row, col, newGrid[row][col]!);
+                      }
+                    }
+                  }
+                }}
                 gridSize={grid[0]?.length || 5} // Safely access grid size
                 onCheckPath={() => {}}
                 validPath={validPath}
@@ -222,6 +248,7 @@ export default function EditCustomLevel() {
                 boardImage="/Board-lvl1.png"
                 handleResetGrid={() => setGrid(level.grid)}
                 onPiecePlaced={(pieceType) => {
+                  // This handler is called separately, so we don't need to duplicate the locking logic here
                   if (pieceType.startsWith('puzzle_')) {
                     setUsedPieces(prev => [...prev, pieceType]);
                   }

@@ -62,6 +62,15 @@ export default function CreateCustomLevel() {
     setGrid(Array(3).fill(null).map(() => Array(5).fill(null)));
   };
 
+  // Add this function to automatically lock cells when pieces are placed
+  const handlePiecePlaced = (row: number, col: number, pieceType: string) => {
+    console.log(`Piece placed at [${row},${col}]: ${pieceType}`);
+    // Automatically lock the cell when a piece is placed
+    if (!lockedCells.some(cell => cell.row === row && cell.col === col)) {
+      setLockedCells([...lockedCells, { row, col }]);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -237,7 +246,19 @@ export default function CreateCustomLevel() {
               
               <GameBoard
                 grid={grid}
-                setGrid={setGrid}
+                setGrid={(newGrid) => {
+                  // When grid is updated, check for new pieces and lock them
+                  setGrid(newGrid);
+                  
+                  // Compare the new grid with the current grid to find newly placed pieces
+                  for (let row = 0; row < newGrid.length; row++) {
+                    for (let col = 0; col < newGrid[row].length; col++) {
+                      if (newGrid[row][col] && (!grid[row] || grid[row][col] !== newGrid[row][col])) {
+                        handlePiecePlaced(row, col, newGrid[row][col]!);
+                      }
+                    }
+                  }
+                }}
                 gridSize={5}
                 onCheckPath={() => {}}
                 validPath={[]}
