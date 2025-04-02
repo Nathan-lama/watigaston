@@ -263,40 +263,45 @@ export default function EditCustomLevel() {
             
             <div className="md:w-1/3">
               <h3 className="text-lg font-medium text-gray-900 mb-3">Pièces disponibles pour le joueur</h3>
-              {Object.entries(puzzlePiecesByType).map(([type, pieces]) => {
-                if (type === 'obstacle') return null; // Ne pas montrer les obstacles ici
-                
-                return (
-                  <div key={type} className="mb-4">
-                    <h4 className="font-medium text-gray-800 mb-2 capitalize">{type === 'debut' ? 'Départ' : type === 'fin' ? 'Arrivée' : type}</h4>
-                    <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
-                      {pieces.map(piece => (
-                        <div 
-                          key={piece.type}
-                          className={`p-2 border rounded-md cursor-pointer transition-colors ${
-                            availablePieces.includes(piece.type) 
-                              ? 'bg-blue-100 border-blue-300' 
-                              : 'bg-gray-50 border-gray-300'
-                          }`}
-                          onClick={() => handleTogglePiece(piece.type)}
-                        >
-                          <div className="flex justify-center mb-1">
-                            <img 
-                              src={piece.imagePath} 
-                              alt={piece.name} 
-                              className="w-10 h-10 object-contain"
-                            />
-                          </div>
-                          <div className="text-xs text-center truncate">{piece.name}</div>
-                        </div>
-                      ))}
+              
+              {/* Replace the existing puzzlePiecesByType mapping with this filtered version */}
+              <div className="grid grid-cols-3 md:grid-cols-4 gap-3 mb-4">
+                {Object.values(puzzlePieces)
+                  .filter(piece => piece.type.startsWith('puzzle_')) // Only show puzzle pieces
+                  .map(piece => (
+                    <div 
+                      key={piece.type}
+                      className={`p-2 border rounded-md cursor-pointer transition-colors ${
+                        availablePieces.includes(piece.type) 
+                          ? 'bg-blue-100 border-blue-300' 
+                          : 'bg-gray-50 border-gray-300'
+                      }`}
+                      onClick={() => handleTogglePiece(piece.type)}
+                    >
+                      <div className="flex justify-center mb-1">
+                        <img 
+                          src={piece.imagePath} 
+                          alt={piece.name} 
+                          className="w-10 h-10 object-contain"
+                        />
+                      </div>
+                      <div className="text-xs text-center truncate">{piece.name}</div>
                     </div>
-                  </div>
-                );
-              })}
+                  ))}
+              </div>
+              
+              <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-100">
+                <p className="text-sm text-blue-700">
+                  <strong>Note:</strong> Les joueurs ne peuvent utiliser que les pièces de puzzle sélectionnées ci-dessus.
+                  Les pièces de départ, d'arrivée et les obstacles sont placés et verrouillés par vous comme créateur du niveau.
+                </p>
+              </div>
               
               <div className="mt-6 border-t pt-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-3">Pièces à placer</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-3">Pièces à placer dans le niveau</h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  Ces pièces peuvent être placées sur le plateau mais seront verrouillées pour le joueur.
+                </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {Object.values(puzzlePieces).map((piece) => (
                     <div key={piece.type} className="w-16">
