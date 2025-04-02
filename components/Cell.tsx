@@ -247,7 +247,13 @@ const Cell = ({
           className="absolute top-1 left-1 w-6 h-6 bg-gray-100 bg-opacity-70 rounded-full flex items-center justify-center z-10 hover:bg-opacity-100"
           onClick={(e) => {
             e.stopPropagation();
-            if (onRotate) onRotate(position);
+            // Ensure position is passed correctly and defined
+            if (onRotate && position) {
+              console.log("Rotating piece at position:", position);
+              onRotate(position);
+            } else {
+              console.error("Cannot rotate: position is undefined or onRotate not provided");
+            }
           }}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">

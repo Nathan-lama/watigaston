@@ -170,10 +170,20 @@ const GameBoard = ({
   // Fonction pour faire pivoter une pièce
   const handleRotatePiece = (position: { row: number; col: number }) => {
     try {
+      // Add a safeguard at the beginning of the function
+      if (!position || position.row === undefined || position.col === undefined) {
+        console.error("Invalid position for rotation:", position);
+        return;
+      }
+
       const { row, col } = position;
       
-      // Vérifier si la pièce existe et n'est pas verrouillée
+      // Additional logging to help debug
+      console.log(`Rotating piece at [${row},${col}]`);
+      
+      // Rest of the function remains the same
       if (!grid || !grid[row][col] || isCellLocked(row, col)) {
+        console.log("Cannot rotate: no piece, grid undefined, or cell locked");
         return;
       }
       
@@ -303,6 +313,7 @@ const GameBoard = ({
                   onDrop={(item) => handleDropOnCell(rowIndex, colIndex, item)}
                   onClick={() => handleCellClick(rowIndex, colIndex)}
                   onRotate={handleRotatePiece} // Ajouter le gestionnaire de rotation
+                  position={{ row: rowIndex, col: colIndex }} // Ensure position is explicitly passed
                   transparent={true}
                   adjustments={adjustments}
                   cellSize={cellSize}
