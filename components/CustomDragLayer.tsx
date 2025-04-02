@@ -45,21 +45,33 @@ const CustomDragLayer = ({ adjustments }: CustomDragLayerProps) => {
         height: size,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.25))', // Ajout d'une ombre plus prononcée pour l'élément en déplacement
       }}
     >
-      <Image 
-        src={item.imagePath || '/placeholder.png'} 
-        alt={item.type || 'piece'}
-        width={size}
-        height={size}
-        priority
-        style={{ 
-          objectFit: 'contain',
-          transform: `scale(${scale}) rotate(${item.rotation || 0}deg)`, // Ajouter la rotation
-          transformOrigin: 'center'
+      <div
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.7)', // Fond légèrement transparent
+          borderRadius: '12px',
+          padding: '5px',
+          backdropFilter: 'blur(4px)', // Effet glassmorphism
+          boxShadow: '0 8px 32px rgba(31, 38, 135, 0.2)',
         }}
-      />
+      >
+        <Image 
+          src={item.imagePath || '/placeholder.png'} 
+          alt={item.type || 'piece'}
+          width={size}
+          height={size}
+          priority
+          style={{ 
+            objectFit: 'contain',
+            transform: `scale(${scale}) rotate(${item.rotation || 0}deg)`,
+            transformOrigin: 'center',
+            filter: 'brightness(1.05)', // Rendre l'image légèrement plus brillante pendant le drag
+          }}
+        />
+      </div>
     </div>
   );
 };

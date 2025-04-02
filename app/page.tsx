@@ -303,9 +303,9 @@ export default function Home() {
       options={isTouch ? touchBackendOptions : html5Options}
     >
       <CustomDragLayer adjustments={adjustments} />
-      <main className="min-h-screen bg-gradient-to-b from-amber-50 to-green-50 py-12 px-4">
+      <main className="min-h-screen bg-gradient-to-b from-blue-50 to-green-50 py-12 px-4">
         <div className="container mx-auto max-w-6xl">
-          <h1 className="text-5xl font-bold mb-8 text-center text-amber-800 animate-float">
+          <h1 className="text-5xl font-bold mb-8 text-center text-blue-800 animate-float">
             <span className="inline-block">🐢</span> Gaston La Tortue
           </h1>
           
@@ -588,36 +588,36 @@ export default function Home() {
                 lockedPieces={lockedPieces}
               />
               
-              <div className="mt-6 bg-white p-6 rounded-xl shadow-xl border border-amber-200 glass-card">
-                <h2 className="text-xl font-bold mb-4 text-amber-800 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="mt-6 bg-white p-6 rounded-xl shadow-xl border border-blue-200 glass-card">
+                <h2 className="text-xl font-bold mb-4 text-blue-800 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   Instructions
                 </h2>
                 <div className="space-y-3">
-                  <p className="mb-2 text-amber-700 flex items-start">
-                    <span className="inline-block bg-amber-100 text-amber-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 font-bold">1</span>
+                  <p className="mb-2 text-blue-700 flex items-start">
+                    <span className="inline-block bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 font-bold">1</span>
                     Placez le Petit Chaperon Rouge et la maison sur la grille.
                   </p>
-                  <p className="mb-2 text-amber-700 flex items-start">
-                    <span className="inline-block bg-amber-100 text-amber-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 font-bold">2</span>
+                  <p className="mb-2 text-blue-700 flex items-start">
+                    <span className="inline-block bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 font-bold">2</span>
                     Ajoutez des routes pour créer un chemin.
                   </p>
-                  <p className="mb-2 text-amber-700 flex items-start">
-                    <span className="inline-block bg-amber-100 text-amber-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 font-bold">3</span>
+                  <p className="mb-2 text-blue-700 flex items-start">
+                    <span className="inline-block bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 font-bold">3</span>
                     Placez des obstacles pour compliquer le jeu.
                   </p>
-                  <p className="mb-2 text-amber-700 flex items-start">
-                    <span className="inline-block bg-amber-100 text-amber-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 font-bold">4</span>
+                  <p className="mb-2 text-blue-700 flex items-start">
+                    <span className="inline-block bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 font-bold">4</span>
                     Cliquez sur "Vérifier le chemin" pour valider.
                   </p>
                 </div>
-                <div className="mt-4 p-3 bg-amber-50 rounded-lg flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-amber-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="mt-4 p-3 bg-blue-50 rounded-lg flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
-                  <p className="text-amber-700 font-medium text-sm">Pour retirer un élément, cliquez simplement dessus.</p>
+                  <p className="text-blue-700 font-medium text-sm">Pour retirer un élément, cliquez simplement dessus.</p>
                 </div>
               </div>
             </div>

@@ -169,22 +169,23 @@ const Cell = ({
   // Style dynamique selon l'état du drop avec des effets modernes
   let cellStyle = '';
   
+  // S'assurer qu'il n'y a plus de jaune dans les styles
   if (transparent) {
     cellStyle = isOver && canDrop 
-      ? 'bg-yellow-100 bg-opacity-30 shadow-inner ring-2 ring-yellow-300 ring-opacity-50' 
+      ? 'bg-green-100/40 shadow-inner ring-2 ring-green-400/50' 
       : canDrop 
-        ? 'bg-blue-100 bg-opacity-20 hover:bg-blue-100 hover:bg-opacity-30 transition-all duration-200' 
+        ? 'bg-blue-100/20 hover:bg-blue-100/30 transition-all duration-200' 
         : content 
           ? isLocked 
             ? 'bg-transparent cursor-not-allowed' 
-            : 'bg-transparent hover:bg-white hover:bg-opacity-20 transition-all duration-200' 
-          : 'hover:bg-white hover:bg-opacity-10 transition-all duration-200';
+            : 'bg-transparent hover:bg-white/20 transition-all duration-200' 
+          : 'hover:bg-white/10 transition-all duration-200';
   } else {
     cellStyle = isOver && canDrop 
-      ? 'bg-yellow-50 border-yellow-400 shadow-inner' 
+      ? 'bg-green-50 border-green-400 shadow-md' 
       : canDrop 
         ? 'bg-blue-50 border-blue-300 hover:bg-blue-100 transition-all duration-200' 
-        : content ? 'bg-amber-50 border-amber-300' : 'bg-gray-50 border-gray-300 hover:bg-gray-100 transition-all duration-200';
+        : content ? 'bg-blue-50 border-blue-300' : 'bg-gray-50 border-gray-300 hover:bg-gray-100 transition-all duration-200';
   }
   
   const handleClick = () => {
@@ -227,9 +228,10 @@ const Cell = ({
       
       {renderContent()}
       
+      {/* Changer la couleur du highlight lors du drop */}
       {isOver && canDrop && (
         <div 
-          className="absolute inset-0 bg-yellow-200 opacity-20 rounded-sm animate-pulse" 
+          className="absolute inset-0 bg-green-400/20 rounded-sm animate-pulse shadow-inner" 
           style={{ zIndex: 1 }}
         />
       )}

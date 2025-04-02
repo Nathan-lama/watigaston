@@ -53,35 +53,31 @@ const DraggableItem = ({ type, name, imagePath, category, directions: initialDir
     switch (category) {
       case 'debut': return 'from-green-400 to-green-500 shadow-green-200';
       case 'fin': return 'from-red-400 to-red-500 shadow-red-200';
-      case 'puzzle': return 'from-amber-300 to-amber-400 shadow-amber-200';
+      case 'puzzle': return 'from-blue-300 to-blue-400 shadow-blue-200'; // Changé de amber à blue
       case 'obstacle': return 'from-purple-400 to-purple-500 shadow-purple-200'; 
-      default: return 'from-amber-300 to-amber-400 shadow-amber-200';
+      default: return 'from-gray-300 to-gray-400 shadow-gray-200'; // Changé par défaut aussi
     }
   };
 
-  // Simplify the renderDirections function to avoid using the problematic component temporarily
+  // Supprimer complètement la fonction renderDirections
   const renderDirections = () => {
-    // Only show directions for puzzle pieces
-    if (!directions || !directions.length || !type.startsWith('puzzle_')) {
-      return null;
-    }
-    
-    // Create a simplified direction visualizer to bypass the import issue
-    return (
-      <div className="mt-1 flex justify-center">
-        <div className="text-xs text-gray-500">
-          Directions: {directions.join(', ')}
-        </div>
-      </div>
-    );
+    // Fonction vidée - ne plus afficher les directions
+    return null;
   };
 
   return (
     <div
-      className={`relative p-3 mb-3 bg-white border-2 border-transparent rounded-xl text-center select-none transition-all duration-300 ${
+      className={`relative p-3 mb-3 rounded-xl text-center select-none transition-all duration-300 ${
         isDragging ? 'opacity-0' : 'hover:shadow-lg hover:-translate-y-1'
       } bg-gradient-to-br ${getBorderColor()}`}
-      style={{ touchAction: 'none' }}
+      style={{ 
+        touchAction: 'none',
+        backgroundColor: 'white',
+        borderWidth: '2px',
+        borderStyle: 'solid',
+        borderColor: 'transparent',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      }}
     >
       <div className="mb-1 flex justify-center relative">
         <div ref={drag} className="cursor-grab">
@@ -108,8 +104,7 @@ const DraggableItem = ({ type, name, imagePath, category, directions: initialDir
           </button>
         )}
       </div>
-      <div className="text-xs font-medium text-white shadow-text">{name}</div>
-      {renderDirections()}
+      <div className="text-xs font-medium text-gray-700">{name}</div>
     </div>
   );
 };
