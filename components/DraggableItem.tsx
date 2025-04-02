@@ -33,22 +33,22 @@ const DraggableItem = ({ type, name, imagePath, category, directions: initialDir
     setRotation((prev) => (prev + 90) % 360);
   };
 
+  // Mettre à jour l'objet item avec les directions actuelles
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'gameItem',
-    // Inclure un ID unique pour chaque instance de pièce, ainsi que les directions
     item: { 
       type, 
       imagePath, 
       category, 
       uniqueId,
-      directions, // Utiliser les directions rotatives
-      // Marquer comme venant de la galerie = à cloner, pas à déplacer
+      directions, // Utiliser les directions après rotation
+      rotation, // Ajouter la rotation actuelle
       fromGallery: true
     },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
-  }), [type, imagePath, category, directions]); // Ajouter directions aux dépendances
+  }), [type, imagePath, category, directions, rotation]); // Ajouter rotation aux dépendances
 
   // Couleurs différentes selon la catégorie
   const getBorderColor = () => {

@@ -56,7 +56,7 @@ const CustomDragLayer = ({ adjustments }: CustomDragLayerProps) => {
         priority
         style={{ 
           objectFit: 'contain',
-          transform: `scale(${scale})`, // Appliquer l'échelle directement
+          transform: `scale(${scale}) rotate(${item.rotation || 0}deg)`, // Ajouter la rotation
           transformOrigin: 'center'
         }}
       />

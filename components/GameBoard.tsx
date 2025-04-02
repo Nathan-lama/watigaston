@@ -41,6 +41,9 @@ const GameBoard = ({
   // État pour stocker les directions de chaque cellule
   const [cellDirections, setCellDirections] = useState<Record<string, Direction[]>>({});
 
+  // Ajouter un état pour stocker les rotations visuelles des pièces
+  const [cellRotations, setCellRotations] = useState<Record<string, number>>({});
+
   // Récupérer les dimensions de l'image au chargement
   useEffect(() => {
     const img = new window.Image();
@@ -64,6 +67,7 @@ const GameBoard = ({
     fromGallery?: boolean;
     uniqueId?: string;
     directions?: Direction[];
+    rotation?: number; // Ajouter la rotation
   }) => {
     try {
       // Vérifier si la cellule est verrouillée
@@ -99,22 +103,36 @@ const GameBoard = ({
       // Placer la pièce à la nouvelle position
       newGrid[row][col] = item.type;
       
-      // Enregistrer les directions de la pièce
-      const pieceConfig = getPieceConfig(item.type);
-      if (pieceConfig) {
+      // Conserver les directions personnalisées après rotation
+      if (item.directions) {
+        console.log(`Pièce placée: ${item.type} en [${row},${col}] avec directions personnalisées:`, item.directions);
+        // Utiliser directement les directions personnalisées de l'item
         setCellDirections(prev => ({
           ...prev,
-          [`${row},${col}`]: pieceConfig.directions
+          [`${row},${col}`]: [...item.directions] // Copie profonde des directions
         }));
-      } else if (item.directions) {
-        setCellDirections(prev => ({
-          ...prev,
-          [`${row},${col}`]: item.directions
-        }));
+      } else {
+        // Si pas de directions personnalisées, utiliser les directions par défaut
+        const pieceConfig = getPieceConfig(item.type);
+        if (pieceConfig) {
+          setCellDirections(prev => ({
+            ...prev,
+            [`${row},${col}`]: [...pieceConfig.directions]
+          }));
+        }
       }
       
+      // Enregistrer la rotation visuelle de la pièce si disponible
+      if (item.rotation !== undefined) {
+        setCellRotations(prev => ({
+          ...prev,
+          [`${row},${col}`]: item.rotation
+        }));
+        console.log(`Rotation visuelle enregistrée: ${item.rotation}° pour [${row},${col}]`);
+      }
+
       console.log(`Pièce placée: ${item.type} en [${row}][${col}] avec directions:`, 
-                 pieceConfig?.directions || item.directions);
+                 item.directions || getPieceConfig(item.type)?.directions);
       setGrid(newGrid);
     } catch (error) {
       console.error("Erreur lors de la mise à jour de la grille:", error);
@@ -175,6 +193,15 @@ const GameBoard = ({
         [`${row},${col}`]: newDirections
       }));
       
+      // Mettre à jour aussi la rotation visuelle
+      setCellRotations(prev => {
+        const currentRotation = prev[`${row},${col}`] || 0;
+        return {
+          ...prev,
+          [`${row},${col}`]: (currentRotation + 90) % 360
+        };
+      });
+
       console.log(`Pièce en [${row},${col}] pivotée: ${currentDirections} -> ${newDirections}`);
     } catch (error) {
       console.error("Erreur lors de la rotation de la pièce:", error);
@@ -282,6 +309,7 @@ const GameBoard = ({
                   isLocked={isCellLocked(rowIndex, colIndex)} // Indiquer si la cellule est verrouillée
                   directions={cellDirections[`${rowIndex},${colIndex}`]}
                   showDirections={showDirections}
+                  rotation={cellRotations[`${rowIndex},${colIndex}`] || 0} // Passer la rotation
                 />
               ))
             ))}

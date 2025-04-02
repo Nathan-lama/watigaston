@@ -16,6 +16,7 @@ interface CellProps {
   directions?: Direction[]; // Nouvelle prop pour les directions
   onRotate?: (position: { row: number; col: number }) => void;
   showDirections?: boolean; // Ajouter cette prop
+  rotation?: number; // Nouvelle prop pour la rotation visuelle
 }
 
 const Cell = ({ 
@@ -29,7 +30,8 @@ const Cell = ({
   isLocked = false,
   directions,
   onRotate,
-  showDirections = false // Ajouter cette prop
+  showDirections = false, // Ajouter cette prop
+  rotation = 0, // Ajouter la prop avec valeur par défaut 0
 }: CellProps) => {
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: 'gameItem',
@@ -66,22 +68,21 @@ const Cell = ({
     }),
   }), [content, onDrop, isLocked]); // Ajouter isLocked aux dépendances
 
-  // Mise à jour du useDrag pour ne pas permettre le drag des cellules verrouillées
+  // FIXED: Remove the duplicate useDrag declaration and combine the logic
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'gameItem',
     item: content && !isLocked ? { 
       type: content, 
-      // Inclure la source pour savoir que ça vient d'une cellule existante
       isFromCell: true,
       position,
-      directions
+      directions, // Include current directions
+      rotation, // Passer la rotation actuelle
     } : null,
-    // Ne permettre le drag que si il y a un contenu et que la cellule n'est pas verrouillée
     canDrag: !!content && !isLocked,
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
-  }), [content, position, isLocked, directions]); // Ajouter isLocked aux dépendances
+  }), [content, position, isLocked, directions, rotation]); // Ajouter rotation aux dépendances
 
   // Fonction pour obtenir le chemin de l'image basé sur le type de contenu
   const getImagePath = (content: string): string => {
@@ -131,32 +132,8 @@ const Cell = ({
     const baseImageSize = cellSize * 0.95; // 95% de la taille de la cellule pour maximiser l'espace
     const imageSize = Math.round(baseImageSize * scale);
 
-    // Calculer la rotation en degrés pour l'affichage
-    let rotationDegrees = 0;
-    if (directions && content.startsWith('puzzle_')) {
-      // On détermine la rotation en fonction des directions actuelles
-      const defaultPiece = getPieceConfig(content);
-      if (defaultPiece) {
-        // On compare les directions actuelles avec les directions par défaut
-        // pour déterminer la rotation
-        
-        // Exemple pour une pièce horizontale (E-W) qui devient verticale (N-S)
-        if (defaultPiece.directions.includes('E') && defaultPiece.directions.includes('W')) {
-          if (directions.includes('N') && directions.includes('S')) {
-            rotationDegrees = 90;
-          }
-        }
-        
-        // Exemple pour une pièce en L (N-E) qui devient (E-S), (S-W), ou (W-N)
-        else if (defaultPiece.directions.includes('N') && defaultPiece.directions.includes('E')) {
-          if (directions.includes('E') && directions.includes('S')) rotationDegrees = 90;
-          else if (directions.includes('S') && directions.includes('W')) rotationDegrees = 180; 
-          else if (directions.includes('W') && directions.includes('N')) rotationDegrees = 270;
-        }
-        
-        // Faire de même pour les autres types de pièces...
-      }
-    }
+    // Utiliser directement la rotation passée en prop au lieu de la calculer
+    let rotationDegrees = rotation;
 
     return (
       <div
@@ -183,7 +160,7 @@ const Cell = ({
             objectFit: 'contain',
             width: '100%',
             height: '100%',
-            transform: `scale(${scale}) rotate(${rotationDegrees}deg)`,
+            transform: `scale(${scale}) rotate(${rotationDegrees}deg)`, // Utiliser la rotation
             transformOrigin: 'center',
             transition: 'transform 0.3s ease',
           }}

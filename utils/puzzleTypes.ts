@@ -53,26 +53,26 @@ export const puzzlePieces: Record<string, PuzzlePieceConfig> = {
   // Pièces de virages
   'puzzle_3': { 
     type: 'puzzle_3',
-    name: 'Virage Nord-Est',
-    directions: ['N', 'E'],
+    name: 'Virage Sud-West',
+    directions: ['S', 'W'],
     imagePath: '/kit1/puzzle/piece3.png'
   },
   'puzzle_4': { 
     type: 'puzzle_4',
     name: 'Virage Nord-Ouest',
-    directions: ['N', 'W'], 
+    directions: ['E', 'W'], 
     imagePath: '/kit1/puzzle/piece4.png'
   },
   'puzzle_5': { 
     type: 'puzzle_5',
     name: 'Virage Sud-Est',
-    directions: ['S', 'E'], 
+    directions: ['S', 'W'], 
     imagePath: '/kit1/puzzle/piece5.png'
   },
   'puzzle_6': { 
     type: 'puzzle_6',
     name: 'Virage Sud-Ouest',
-    directions: ['S', 'W'],
+    directions: ['E', 'W'],
     imagePath: '/kit1/puzzle/piece6.png'
   },
   
@@ -80,13 +80,13 @@ export const puzzlePieces: Record<string, PuzzlePieceConfig> = {
   'puzzle_7': { 
     type: 'puzzle_7',
     name: 'Carrefour en T',
-    directions: ['N', 'E', 'W'],
+    directions: ['E', 'W'],
     imagePath: '/kit1/puzzle/piece7.png'
   },
   'puzzle_8': { 
     type: 'puzzle_8',
     name: 'Carrefour en croix',
-    directions: ['N', 'S', 'E', 'W'],
+    directions: ['E', 'W'],
     imagePath: '/kit1/puzzle/piece8.png'
   }
 };
