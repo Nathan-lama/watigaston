@@ -152,35 +152,35 @@ export default function CreateCustomLevel() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
                 <div className="mb-4">
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Nom du niveau</label>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-800 mb-1">Nom du niveau</label>
                   <input
                     id="name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white"
                     required
                   />
                 </div>
                 
                 <div className="mb-4">
-                  <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <label htmlFor="description" className="block text-sm font-medium text-gray-800 mb-1">Description</label>
                   <textarea
                     id="description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white"
                     rows={3}
                   />
                 </div>
                 
                 <div className="mb-4">
-                  <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700 mb-1">Difficulté</label>
+                  <label htmlFor="difficulty" className="block text-sm font-medium text-gray-800 mb-1">Difficulté</label>
                   <select
                     id="difficulty"
                     value={difficulty}
                     onChange={(e) => setDifficulty(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white"
                   >
                     <option value="easy">Facile</option>
                     <option value="medium">Moyen</option>
