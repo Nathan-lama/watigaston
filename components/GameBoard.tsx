@@ -17,6 +17,7 @@ interface GameBoardProps {
   boardImage?: string; // Nouvelle prop pour l'image du plateau
   onPiecePlaced?: (pieceType: string) => void;   // Nouvelle prop
   onPieceRemoved?: (pieceType: string) => void;  // Nouvelle prop
+  handleResetGrid: () => void; // Add the prop
 }
 
 const GameBoard = ({ 
@@ -30,6 +31,7 @@ const GameBoard = ({
   boardImage = '/Board-lvl1.png',
   onPiecePlaced,
   onPieceRemoved,
+  handleResetGrid, // Add the prop
 }: GameBoardProps) => {
   const [boardWidth, setBoardWidth] = useState(0);
   const [boardHeight, setBoardHeight] = useState(0);
@@ -357,13 +359,13 @@ const GameBoard = ({
         </button>
         
         <button 
-          onClick={resetAllDirectionsToDefault}
+          onClick={handleResetGrid} // Use the prop here
           className="btn-secondary flex items-center"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          Réinitialiser directions
+          Réinitialiser niveau
         </button>
       </div>
     </div>
