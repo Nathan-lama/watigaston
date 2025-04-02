@@ -67,16 +67,12 @@ const DraggableItem = ({ type, name, imagePath, category, directions: initialDir
 
   return (
     <div
-      className={`relative p-3 mb-3 rounded-xl text-center select-none transition-all duration-300 ${
-        isDragging ? 'opacity-0' : 'hover:shadow-lg hover:-translate-y-1'
-      } bg-gradient-to-br ${getBorderColor()}`}
+      className={`relative p-2 mb-2 text-center select-none transition-transform ${
+        isDragging ? 'opacity-0' : 'hover:scale-110'
+      }`}
       style={{ 
         touchAction: 'none',
-        backgroundColor: 'white',
-        borderWidth: '2px',
-        borderStyle: 'solid',
-        borderColor: 'transparent',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        transition: 'transform 0.2s ease',
       }}
     >
       <div className="mb-1 flex justify-center relative">
@@ -88,23 +84,27 @@ const DraggableItem = ({ type, name, imagePath, category, directions: initialDir
             height={80}
             className="object-contain transition-transform duration-300"
             draggable={false}
-            style={{ transform: `rotate(${rotation}deg)` }}
+            style={{ 
+              transform: `rotate(${rotation}deg)`,
+              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+            }}
           />
         </div>
         
-        {/* Bouton de rotation moderne */}
+        {/* Bouton de rotation moderne, légèrement modifié */}
         {getPieceConfig(type)?.rotatable && (
           <button 
-            className="absolute -top-2 -right-2 bg-white hover:bg-gray-100 rounded-full w-7 h-7 flex items-center justify-center shadow-md transition-all duration-200"
+            className="absolute -top-1 -right-1 bg-white hover:bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center shadow-sm transition-all duration-200"
             onClick={handleRotate}
+            style={{ zIndex: 5 }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
         )}
       </div>
-      <div className="text-xs font-medium text-gray-700">{name}</div>
+      <div className="text-xs font-medium text-gray-600">{name}</div>
     </div>
   );
 };

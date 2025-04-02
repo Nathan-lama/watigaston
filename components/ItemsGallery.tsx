@@ -35,6 +35,7 @@ const ItemsGallery = ({
     !lockedPieces.includes(pieceType)
   );
 
+  // Modifier la grille pour un affichage plus aéré
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -47,7 +48,7 @@ const ItemsGallery = ({
           Pièces disponibles
         </h2>
         {filteredPieces.length > 0 ? (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-2">
             {filteredPieces.map((piece, index) => (
               <motion.div
                 key={piece.type}
@@ -77,15 +78,15 @@ const ItemsGallery = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="mt-5 border-t border-blue-200 pt-4"
+            className="mt-4 border-t border-blue-200 pt-3"
           >
-            <h3 className="text-sm font-medium text-blue-700 mb-3 flex items-center">
+            <h3 className="text-sm font-medium text-blue-700 mb-2 flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Pièces déjà utilisées
             </h3>
-            <div className="grid grid-cols-2 gap-3 opacity-50">
+            <div className="grid grid-cols-3 gap-2 opacity-60">
               {usedButNotLocked.map(pieceType => {
                 const piece = puzzlePieces[pieceType];
                 if (!piece) return null;
@@ -93,13 +94,18 @@ const ItemsGallery = ({
                 return (
                   <div 
                     key={piece.type} 
-                    className="p-3 bg-white border-2 border-gray-300 rounded-lg text-center cursor-not-allowed"
+                    className="p-2 text-center cursor-not-allowed"
                   >
                     <div className="mb-1 flex justify-center">
                       <img 
                         src={piece.imagePath}
                         alt={piece.name}
-                        style={{ width: '80px', height: '80px', objectFit: 'contain' }}
+                        style={{ 
+                          width: '80px', 
+                          height: '80px', 
+                          objectFit: 'contain',
+                          filter: 'grayscale(70%)',
+                        }}
                       />
                     </div>
                     <div className="text-xs font-medium text-gray-500">{piece.name}</div>
