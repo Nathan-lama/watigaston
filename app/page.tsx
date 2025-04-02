@@ -588,18 +588,10 @@ export default function Home() {
                 <div className="space-y-3">
                   <p className="mb-2 text-blue-700 flex items-start">
                     <span className="inline-block bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 font-bold">1</span>
-                    Placez le Petit Chaperon Rouge et la maison sur la grille.
-                  </p>
-                  <p className="mb-2 text-blue-700 flex items-start">
-                    <span className="inline-block bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 font-bold">2</span>
                     Ajoutez des routes pour créer un chemin.
                   </p>
                   <p className="mb-2 text-blue-700 flex items-start">
-                    <span className="inline-block bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 font-bold">3</span>
-                    Placez des obstacles pour compliquer le jeu.
-                  </p>
-                  <p className="mb-2 text-blue-700 flex items-start">
-                    <span className="inline-block bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 font-bold">4</span>
+                    <span className="inline-block bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-0.5 font-bold">2</span>
                     Cliquez sur "Vérifier le chemin" pour valider.
                   </p>
                 </div>
