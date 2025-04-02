@@ -11,6 +11,8 @@ import LevelSelector from '@/components/LevelSelector';
 import { findPath, PathPosition } from '@/utils/pathFinding';
 import { defaultAdjustments, PieceAdjustments } from '@/utils/pieceAdjustments';
 import { Level, getDefaultLevel, getLevelById } from '@/utils/levels';
+// Ajouter l'import manquant
+import { getPieceConfig } from '@/utils/puzzleTypes';
 
 // Fonction pour détecter si l'appareil utilise un écran tactile
 const isTouchDevice = () => {
@@ -49,6 +51,8 @@ export default function Home() {
   const [isTouch, setIsTouch] = useState(false);
   const [showAdjustmentTools, setShowAdjustmentTools] = useState(false);
   const [validPath, setValidPath] = useState<PathPosition[]>([]);
+  const [showDebugger, setShowDebugger] = useState(false);
+  const [showDirections, setShowDirections] = useState(false);
   
   // Nouvel état pour les ajustements des pièces
   const [adjustments, setAdjustments] = useState<PieceAdjustments>(defaultAdjustments);
@@ -95,9 +99,52 @@ export default function Home() {
     setValidPath([]);
   }, [currentLevel]);
   
-  const handleCheckPath = () => {
-    const path = findPath(grid);
+  const handleCheckPath = (cellDirections?: Record<string, Direction[]>) => {
+    // Ajouter du diagnostic pour aider à comprendre les problèmes
+    console.log("Vérification du chemin...");
+    
+    // Vérifier la présence des pièces essentielles
+    let hasStart = false;
+    let hasEnd = false;
+    
+    // Analyser la grille pour le diagnostic
+    grid.forEach((row, rowIndex) => {
+      row.forEach((cell, colIndex) => {
+        if (cell?.startsWith('debut_')) {
+          hasStart = true;
+          console.log(`Pièce de départ trouvée en [${rowIndex},${colIndex}] : ${cell}`);
+          
+          // Afficher les directions de la pièce de départ
+          const pieceConfig = getPieceConfig(cell);
+          console.log(`Directions de départ: ${pieceConfig?.directions.join(', ')}`);
+        }
+        if (cell?.startsWith('fin_')) {
+          hasEnd = true;
+          console.log(`Pièce d'arrivée trouvée en [${rowIndex},${colIndex}] : ${cell}`);
+          
+          // Afficher les directions de la pièce d'arrivée
+          const pieceConfig = getPieceConfig(cell);
+          console.log(`Directions d'arrivée: ${pieceConfig?.directions.join(', ')}`);
+        }
+        if (cell?.startsWith('puzzle_')) {
+          const pieceConfig = getPieceConfig(cell);
+          console.log(`Pièce de puzzle en [${rowIndex},${colIndex}] : ${cell}, directions: ${pieceConfig?.directions.join(', ')}`);
+        }
+      });
+    });
+    
+    if (!hasStart) console.error("⚠️ Pas de pièce de départ!");
+    if (!hasEnd) console.error("⚠️ Pas de pièce d'arrivée!");
+    
+    // Utiliser les directions personnalisées
+    const path = findPath(grid, cellDirections || {});
     const hasValidPath = path.length > 0;
+    
+    if (hasValidPath) {
+      console.log("✅ Chemin valide trouvé:", path);
+    } else {
+      console.error("❌ Aucun chemin valide trouvé!");
+    }
     
     setValidPath(path);
     setPathResult(
@@ -220,6 +267,22 @@ export default function Home() {
               className="text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-1 px-3 rounded"
             >
               {showAdjustmentTools ? "Masquer les réglages" : "Réglages avancés"}
+            </button>
+            
+            {/* Ajouter un bouton pour activer/désactiver le débogueur */}
+            <button 
+              onClick={() => setShowDebugger(!showDebugger)}
+              className={`text-sm ${showDebugger ? 'bg-blue-200 hover:bg-blue-300 text-blue-700' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'} font-medium py-1 px-3 rounded`}
+            >
+              {showDebugger ? "Masquer débogueur" : "Afficher débogueur"}
+            </button>
+            
+            {/* Nouveau bouton pour afficher les directions */}
+            <button 
+              onClick={() => setShowDirections(!showDirections)}
+              className={`text-sm ${showDirections ? 'bg-purple-200 hover:bg-purple-300 text-purple-700' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'} font-medium py-1 px-3 rounded`}
+            >
+              {showDirections ? "Masquer directions" : "Afficher directions"}
             </button>
           </div>
           
@@ -449,11 +512,13 @@ export default function Home() {
                 grid={grid} 
                 setGrid={setGrid} 
                 gridSize={gridSize} 
-                onCheckPath={handleCheckPath}
+                onCheckPath={handleCheckPath} // Passer la fonction mise à jour
                 validPath={validPath}
                 lockedCells={currentLevel.lockedCells} // Passer les cellules verrouillées
                 adjustments={adjustments}
                 boardImage={currentLevel.boardImage}
+                showDebugger={showDebugger} // Passer la prop showDebugger
+                showDirections={showDirections} // Passer la nouvelle prop
               />
               
               <div className="mt-6 flex gap-3 justify-center">

@@ -4,16 +4,21 @@ import { useCallback, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { PieceAdjustments } from '@/utils/pieceAdjustments';
 import { PathPosition } from '@/utils/pathFinding';
+import { Direction, getPieceConfig, rotateDirectionsClockwise } from '@/utils/puzzleTypes';
+import ConnectionDebugger from '@/components/ConnectionDebugger';
+import { debugPuzzle6Issue } from '@/utils/debugHelpers';
 
 interface GameBoardProps {
   grid: (string | null)[][];
   setGrid: React.Dispatch<React.SetStateAction<(string | null)[][]>>;
   gridSize: number;
-  onCheckPath: () => void;
+  onCheckPath: (cellDirections?: Record<string, Direction[]>) => void;
   validPath: PathPosition[];
   lockedCells: {row: number, col: number}[]; // Nouvelle prop pour les cellules verrouillées
   adjustments?: PieceAdjustments;
   boardImage?: string; // Nouvelle prop pour l'image du plateau
+  showDebugger?: boolean; // Nouvelle prop pour afficher/masquer le débogueur
+  showDirections?: boolean; // Nouvelle prop
 }
 
 const GameBoard = ({ 
@@ -24,12 +29,17 @@ const GameBoard = ({
   validPath,
   lockedCells = [], // Par défaut, aucune cellule n'est verrouillée
   adjustments, 
-  boardImage = '/Board-lvl1.png' 
+  boardImage = '/Board-lvl1.png',
+  showDebugger = false,
+  showDirections = false,
 }: GameBoardProps) => {
   const [boardWidth, setBoardWidth] = useState(0);
   const [boardHeight, setBoardHeight] = useState(0);
   const rows = 3;
   const cols = 5;
+
+  // État pour stocker les directions de chaque cellule
+  const [cellDirections, setCellDirections] = useState<Record<string, Direction[]>>({});
 
   // Récupérer les dimensions de l'image au chargement
   useEffect(() => {
@@ -53,6 +63,7 @@ const GameBoard = ({
     position?: { row: number; col: number };
     fromGallery?: boolean;
     uniqueId?: string;
+    directions?: Direction[];
   }) => {
     try {
       // Vérifier si la cellule est verrouillée
@@ -77,13 +88,33 @@ const GameBoard = ({
         const { row: oldRow, col: oldCol } = item.position;
         if (oldRow !== row || oldCol !== col) { // Éviter de s'effacer soi-même
           newGrid[oldRow][oldCol] = null;
+          
+          // Effacer également les directions associées
+          const newDirections = { ...cellDirections };
+          delete newDirections[`${oldRow},${oldCol}`];
+          setCellDirections(newDirections);
         }
       }
       
       // Placer la pièce à la nouvelle position
       newGrid[row][col] = item.type;
       
-      console.log(`Pièce placée: ${item.type} en [${row}][${col}]`);
+      // Enregistrer les directions de la pièce
+      const pieceConfig = getPieceConfig(item.type);
+      if (pieceConfig) {
+        setCellDirections(prev => ({
+          ...prev,
+          [`${row},${col}`]: pieceConfig.directions
+        }));
+      } else if (item.directions) {
+        setCellDirections(prev => ({
+          ...prev,
+          [`${row},${col}`]: item.directions
+        }));
+      }
+      
+      console.log(`Pièce placée: ${item.type} en [${row}][${col}] avec directions:`, 
+                 pieceConfig?.directions || item.directions);
       setGrid(newGrid);
     } catch (error) {
       console.error("Erreur lors de la mise à jour de la grille:", error);
@@ -118,6 +149,38 @@ const GameBoard = ({
     }
   };
 
+  // Fonction pour faire pivoter une pièce
+  const handleRotatePiece = (position: { row: number; col: number }) => {
+    try {
+      const { row, col } = position;
+      
+      // Vérifier si la pièce existe et n'est pas verrouillée
+      if (!grid || !grid[row][col] || isCellLocked(row, col)) {
+        return;
+      }
+      
+      const pieceType = grid[row][col];
+      if (!pieceType) return;
+      
+      // Obtenir les directions actuelles
+      const currentDirections = cellDirections[`${row},${col}`] || 
+                               getPieceConfig(pieceType)?.directions || [];
+      
+      // Faire pivoter les directions
+      const newDirections = rotateDirectionsClockwise(currentDirections);
+      
+      // Mettre à jour l'état des directions
+      setCellDirections(prev => ({
+        ...prev,
+        [`${row},${col}`]: newDirections
+      }));
+      
+      console.log(`Pièce en [${row},${col}] pivotée: ${currentDirections} -> ${newDirections}`);
+    } catch (error) {
+      console.error("Erreur lors de la rotation de la pièce:", error);
+    }
+  };
+
   // Calculer l'espacement de la grille en fonction des ajustements
   const gridGap = adjustments?.board.gridGap || 0;
   const boardScale = adjustments?.board.scale || 1.2; 
@@ -126,6 +189,39 @@ const GameBoard = ({
   // Calculer la taille totale de la grille basée sur les cellules
   const totalGridWidth = cellSize * cols + gridGap * (cols - 1);
   const totalGridHeight = cellSize * rows + gridGap * (rows - 1);
+
+  // Passer cellDirections à la fonction handleCheckPath
+  const handleCheckPathWithDirections = () => {
+    console.log("Envoi des directions personnalisées:", cellDirections);
+    onCheckPath(cellDirections);
+  };
+
+  // Ajouter cette fonction pour réinitialiser les directions
+  const resetAllDirectionsToDefault = () => {
+    const newDirections: Record<string, Direction[]> = {};
+    
+    // Parcourir la grille et réappliquer les directions par défaut
+    grid.forEach((row, rowIndex) => {
+      row.forEach((cellType, colIndex) => {
+        if (cellType) {
+          const pieceConfig = getPieceConfig(cellType);
+          if (pieceConfig) {
+            newDirections[`${rowIndex},${colIndex}`] = [...pieceConfig.directions];
+          }
+        }
+      });
+    });
+    
+    setCellDirections(newDirections);
+    console.log("Directions réinitialisées aux valeurs par défaut");
+  };
+
+  // Fonction de diagnostic spécifique pour les problèmes de validation
+  const handleDiagnosePath = () => {
+    console.log("=== DIAGNOSTIC DU CHEMIN ===");
+    console.log("Appel du débogueur spécifique...");
+    debugPuzzle6Issue(grid, cellDirections);
+  };
 
   return (
     <div className="bg-gradient-to-br from-green-100 to-green-200 p-6 rounded-lg shadow-xl border border-green-300">
@@ -144,10 +240,10 @@ const GameBoard = ({
             height={300} 
             alt="Plateau de jeu"
             className="rounded-md"
-            priority
+            priority="grid"
             style={{ 
               pointerEvents: 'none',
-              userSelect: 'none'
+              userSelect: 'none',
             }}
           />
         </div>
@@ -178,34 +274,57 @@ const GameBoard = ({
                   key={`${rowIndex}-${colIndex}`} 
                   content={grid[rowIndex]?.[colIndex] || null} 
                   onDrop={(item) => handleDropOnCell(rowIndex, colIndex, item)}
-                  position={{ row: rowIndex, col: colIndex }}
                   onClick={() => handleCellClick(rowIndex, colIndex)}
+                  onRotate={handleRotatePiece} // Ajouter le gestionnaire de rotation
                   transparent={true}
                   adjustments={adjustments}
                   cellSize={cellSize}
                   isLocked={isCellLocked(rowIndex, colIndex)} // Indiquer si la cellule est verrouillée
+                  directions={cellDirections[`${rowIndex},${colIndex}`]}
+                  showDirections={showDirections}
                 />
               ))
             ))}
           </div>
-          
-          {/* Animation de la tortue si le chemin est valide */}
-          {validPath.length > 0 && (
-            <TurtleAnimation 
-              path={validPath} 
-              cellSize={cellSize}
-            />
-          )}
         </div>
+
+        {/* Animation de la tortue si le chemin est valide */}
+        {validPath.length > 0 && (
+          <TurtleAnimation 
+            path={validPath} 
+            cellSize={cellSize}
+          />
+        )}
       </div>
-      <div className="mt-6 flex justify-center">
+
+      <div className="mt-6 flex justify-center gap-3">
         <button 
-          onClick={onCheckPath}
+          onClick={handleCheckPathWithDirections}
           className="bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-6 rounded-full transform transition-transform hover:scale-105 shadow-md"
         >
           Vérifier le chemin
         </button>
+        
+        <button 
+          onClick={resetAllDirectionsToDefault}
+          className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-full text-sm"
+        >
+          Réinitialiser directions
+        </button>
+        
+        {/* Nouveau bouton de diagnostic */}
+        <button 
+          onClick={handleDiagnosePath}
+          className="bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-full text-sm"
+        >
+          Diagnostiquer chemin
+        </button>
       </div>
+
+      {/* Ajouter le débogueur si showDebugger est true */}
+      {showDebugger && (
+        <ConnectionDebugger grid={grid} cellDirections={cellDirections} />
+      )}
     </div>
   );
 };
