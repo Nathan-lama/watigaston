@@ -65,7 +65,7 @@ export const levels: Level[] = [
       {row: 2, col: 4}, // debut_1
     ],
     boardImage: "/Board-lvl1.png",
-    description: "Créez votre premier chemin ! Placez le Petit Chaperon Rouge et sa grand-mère, puis connectez-les avec des chemins.",
+    description: "Créez votre premier chemin !",
     difficulty: 'easy',
     // Pièces disponibles pour le niveau 1
     availablePieces: ['puzzle_2', 'puzzle_4', 'puzzle_6'],
@@ -85,7 +85,7 @@ export const levels: Level[] = [
       [null, null, 'puzzle_4', 'puzzle_2', 'fin_1']
     ])),
     boardImage: "/Board-lvl1.png",
-    description: "Complétez le chemin commencé pour permettre au Petit Chaperon Rouge d'atteindre sa destination.",
+    description: "Complétez le chemin commencé pour permettre a Gaston d'atteindre sa destination.",
     difficulty: 'easy',
     // Pièces disponibles pour le niveau 2
     availablePieces: ['puzzle_1', 'puzzle_4', 'puzzle_5', 'puzzle_6'],

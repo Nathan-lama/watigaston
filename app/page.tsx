@@ -179,7 +179,7 @@ export default function Home() {
     setValidPath(path);
     setPathResult(
       hasValidPath 
-        ? "Bravo ! Il existe un chemin valide du Petit Chaperon Rouge à la maison."
+        ? "Bravo ! Il existe un chemin valide pour Gaston."
         : "Pas de chemin valide trouvé. Essayez encore !"
     );
   };
