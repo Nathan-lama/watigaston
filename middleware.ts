@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import { NextRequest } from 'next/server';
+import { authOptions } from '@/utils/auth-options'; // Add this import if needed
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
