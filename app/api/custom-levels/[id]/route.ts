@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/utils/db';
 
+// Correct type definition for route params in App Router
+type RouteParams = { params: { id: string } };
+
 // GET /api/custom-levels/[id] - Fetch a custom level by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteParams
 ) {
   try {
-    const { id } = params;
+    const { id } = context.params;
     const levelId = parseInt(id);
 
     const level = await prisma.level.findUnique({
@@ -38,10 +41,10 @@ export async function GET(
 // PUT /api/custom-levels/[id] - Update a custom level by ID
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteParams
 ) {
   try {
-    const { id } = params;
+    const { id } = context.params;
     const levelId = parseInt(id);
     const data = await request.json();
 
@@ -77,10 +80,10 @@ export async function PUT(
 // DELETE /api/custom-levels/[id] - Delete a custom level by ID
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteParams
 ) {
   try {
-    const { id } = params;
+    const { id } = context.params;
     const levelId = parseInt(id);
     
     await prisma.level.delete({
