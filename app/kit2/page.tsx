@@ -71,6 +71,13 @@ export default function Kit2Page() {
     turtleSize: 80,
   });
   
+  // Add new state for success/failure feedback
+  const [feedback, setFeedback] = useState<{
+    show: boolean;
+    success: boolean;
+    message: string;
+  }>({ show: false, success: false, message: '' });
+  
   // Initialize the game board
   useEffect(() => {
     // Example: Setting up a simple level with a start and end point
@@ -111,9 +118,12 @@ export default function Kit2Page() {
     }
   };
   
-  // Execute the command queue - completely rewritten with better state management
+  // Execute the command queue with improved feedback
 const handleStartExecution = async () => {
   if (commandQueue.length === 0 || isExecuting) return;
+  
+  // Clear any previous feedback
+  setFeedback({ show: false, success: false, message: '' });
   
   setIsExecuting(true);
   setCurrentCommandIndex(-1);
@@ -153,35 +163,113 @@ const handleStartExecution = async () => {
         nextPos.col += 1;
       }
       
-      // Check if the move is valid (not into an obstacle)
-      if (!grid[nextPos.row][nextPos.col]?.startsWith('obstacle_')) {
-        // Update position
-        currentPos = { ...nextPos };
+      // Check if the move would go out-of-bounds
+      const isOutOfBounds = 
+        nextPos.row < 0 || 
+        nextPos.row >= grid.length || 
+        nextPos.col < 0 || 
+        nextPos.col >= grid[0].length;
+      
+      if (isOutOfBounds) {
+        console.log(`⚠️ Commande ${i+1} invalide: mouvement hors du plateau`);
         
-        // Update the UI with new position
-        setTurtlePosition({ ...currentPos });
-        console.log(`Moved to [${currentPos.row}, ${currentPos.col}]`);
+        // Show error feedback instead of alert
+        setFeedback({
+          show: true,
+          success: false,
+          message: "Gaston ne peut pas sortir du plateau!"
+        });
         
-        // Wait for animation to complete before next command
-        await new Promise(resolve => setTimeout(resolve, 600));
-      } else {
-        console.log(`Cannot move to [${nextPos.row}, ${nextPos.col}] - obstacle detected`);
-        // Brief pause when hitting obstacle
-        await new Promise(resolve => setTimeout(resolve, 300));
+        // Allow the error feedback to be visible
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Reset to starting position
+        setTurtlePosition({ row: 2, col: 0 });
+        setCommandQueue([]);
+        setIsExecuting(false);
+        setCurrentCommandIndex(-1);
+        return;
       }
+      
+      // Check if the cell has an obstacle
+      const hasObstacle = grid[nextPos.row][nextPos.col]?.startsWith('obstacle_');
+      
+      if (hasObstacle) {
+        console.log(`⚠️ Commande ${i+1} invalide: obstacle détecté`);
+        
+        // Show obstacle hit animation
+        const turtleElement = document.getElementById('turtle');
+        if (turtleElement) {
+          turtleElement.classList.add('error-flash');
+          await new Promise(resolve => setTimeout(resolve, 800));
+          turtleElement.classList.remove('error-flash');
+        }
+        
+        // Show error feedback
+        setFeedback({
+          show: true,
+          success: false,
+          message: "Gaston a rencontré un obstacle!"
+        });
+        
+        // Allow the error feedback to be visible
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Reset to starting position
+        setTurtlePosition({ row: 2, col: 0 });
+        setCommandQueue([]);
+        setIsExecuting(false);
+        setCurrentCommandIndex(-1);
+        return;
+      }
+      
+      // Move is valid, update turtle position
+      currentPos = { ...nextPos };
+      setTurtlePosition({ ...currentPos });
+      
+      // Wait for animation
+      await new Promise(resolve => setTimeout(resolve, 600));
     }
     
-    // After all commands, check win condition
-    console.log("Execution complete. Checking win condition...");
-    console.log("Current position:", currentPos);
-    console.log("Target position:", targetPosition);
-    
+    // Check win condition
     if (targetPosition && 
         currentPos.row === targetPosition.row && 
         currentPos.col === targetPosition.col) {
-      alert('Bravo ! Gaston a atteint sa destination !');
+      // Successful completion!
+      console.log("🎉 Success! Destination reached!");
+      
+      // Show success animation
+      const turtleElement = document.getElementById('turtle');
+      if (turtleElement) {
+        turtleElement.classList.add('success-bounce');
+      }
+      
+      // Show success feedback
+      setFeedback({
+        show: true,
+        success: true,
+        message: "Bravo! Gaston a atteint sa destination!"
+      });
+      
+      // Keep success feedback visible for a moment
+      await new Promise(resolve => setTimeout(resolve, 2000));
     } else {
-      alert('Gaston n\'a pas atteint sa destination. Essayez encore !');
+      // Failed to reach destination
+      console.log("❌ Failed to reach destination");
+      
+      // Show failure feedback
+      setFeedback({
+        show: true,
+        success: false,
+        message: "Gaston n'a pas atteint sa destination."
+      });
+      
+      // Allow the error feedback to be visible
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Reset to starting position after failure
+      setTurtlePosition({ row: 2, col: 0 });
+      setCommandQueue([]);
     }
   } catch (error) {
     console.error("Error during execution:", error);
@@ -199,7 +287,7 @@ const handleStartExecution = async () => {
     setCurrentCommandIndex(-1);
   };
   
-  // Reset the game
+  // Updated reset function to reset everything
   const handleResetGame = () => {
     setTurtlePosition({ row: 2, col: 0 });
     setCommandQueue([]);
@@ -245,6 +333,24 @@ const handleStartExecution = async () => {
             </p>
           </div>
           
+          {/* Add feedback component */}
+          {feedback.show && (
+            <div 
+              className={`p-4 mb-6 rounded-lg text-white text-center transition-all duration-500 transform ${
+                feedback.success 
+                  ? 'bg-green-600 scale-100' 
+                  : 'bg-red-600 scale-100'
+              }`}
+            >
+              <div className="flex items-center justify-center">
+                <span className="text-3xl mr-3">
+                  {feedback.success ? '🎉' : '😕'}
+                </span>
+                <span className="text-xl font-bold">{feedback.message}</span>
+              </div>
+            </div>
+          )}
+          
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="lg:w-2/3">
               <div className="relative bg-gradient-to-br from-green-100 to-green-200 p-6 rounded-xl shadow-2xl border border-green-300">
@@ -261,8 +367,9 @@ const handleStartExecution = async () => {
                   handleResetGrid={() => {}}
                 />
                 
-                {/* Simplify the turtle component for better visibility */}
+                {/* Updated turtle with additional success animation class */}
                 <div 
+                  id="turtle"
                   className="absolute transition-all duration-300 ease-in-out z-50"
                   style={{
                     top: `${6 + debug.gridOffsetY + turtlePosition.row * debug.cellSize + debug.cellSize/2}px`,
