@@ -8,14 +8,18 @@ import {
 
 // GET /api/kit2-custom-levels/[id]
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+  // First await the params to follow Next.js recommended practice
+  params = await Promise.resolve(params);
+  const { id } = params;
+  
   try {
-    const id = parseInt(params.id);
+    const levelId = parseInt(id);
     
-    if (isNaN(id)) {
+    if (isNaN(levelId)) {
       return NextResponse.json({ error: 'Invalid ID format' }, { status: 400 });
     }
     
-    const level = await getCustomKit2LevelById(id);
+    const level = await getCustomKit2LevelById(levelId);
     
     if (!level) {
       return NextResponse.json({ error: 'Level not found' }, { status: 404 });
@@ -23,7 +27,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     
     return NextResponse.json(level);
   } catch (error) {
-    console.error(`Error fetching kit2 level ${params.id}:`, error);
+    console.error(`Error fetching kit2 level ${id}:`, error);
     return NextResponse.json(
       { error: 'Error fetching kit2 level' },
       { status: 500 }
@@ -33,23 +37,29 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 // PUT /api/kit2-custom-levels/[id]
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  // First await the params to follow Next.js recommended practice
+  params = await Promise.resolve(params);
+  const { id } = params;
+  
   try {
-    const id = parseInt(params.id);
+    const levelId = parseInt(id);
     
-    if (isNaN(id)) {
+    if (isNaN(levelId)) {
       return NextResponse.json({ error: 'Invalid ID format' }, { status: 400 });
     }
     
     const data = await request.json();
     
-    if (!isValidKit2Level(data)) {
+    // Use improved validation with detailed errors
+    const validationResult = isValidKit2Level(data);
+    if (!validationResult.valid) {
       return NextResponse.json(
-        { error: 'Invalid kit2 level data' },
+        { error: 'Invalid kit2 level data', details: validationResult.errors },
         { status: 400 }
       );
     }
     
-    const success = await updateCustomKit2Level(id, data);
+    const success = await updateCustomKit2Level(levelId, data);
     
     if (!success) {
       return NextResponse.json({ error: 'Level not found or update failed' }, { status: 404 });
@@ -57,7 +67,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error(`Error updating kit2 level ${params.id}:`, error);
+    console.error(`Error updating kit2 level ${id}:`, error);
     return NextResponse.json(
       { error: 'Error updating kit2 level' },
       { status: 500 }
@@ -67,14 +77,18 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 // DELETE /api/kit2-custom-levels/[id]
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  // First await the params to follow Next.js recommended practice
+  params = await Promise.resolve(params);
+  const { id } = params;
+  
   try {
-    const id = parseInt(params.id);
+    const levelId = parseInt(id);
     
-    if (isNaN(id)) {
+    if (isNaN(levelId)) {
       return NextResponse.json({ error: 'Invalid ID format' }, { status: 400 });
     }
     
-    const success = await deleteCustomKit2Level(id);
+    const success = await deleteCustomKit2Level(levelId);
     
     if (!success) {
       return NextResponse.json({ error: 'Level not found or delete failed' }, { status: 404 });
@@ -82,7 +96,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error(`Error deleting kit2 level ${params.id}:`, error);
+    console.error(`Error deleting kit2 level ${id}:`, error);
     return NextResponse.json(
       { error: 'Error deleting kit2 level' },
       { status: 500 }

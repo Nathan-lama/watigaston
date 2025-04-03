@@ -3,8 +3,11 @@ import { prisma } from '@/utils/db';
 
 // GET /api/custom-levels/[id] - Fetch a custom level by ID
 export async function GET(request: NextRequest, context: { params: { id: string } }) {
+  // First await the params to follow Next.js recommended practice
+  const params = await Promise.resolve(context.params);
+  const { id } = params;
+  
   try {
-    const { id } = context.params;
     const levelId = parseInt(id);
 
     const level = await prisma.level.findUnique({
@@ -34,12 +37,16 @@ export async function GET(request: NextRequest, context: { params: { id: string 
 
 // PUT /api/custom-levels/[id] - Update a custom level by ID
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  // First await the params to follow Next.js recommended practice
+  params = await Promise.resolve(params);
+  const { id } = params;
+  
   try {
-    const id = parseInt(params.id);
+    const levelId = parseInt(id);
     const data = await request.json();
 
     const updatedLevel = await prisma.level.update({
-      where: { id },
+      where: { id: levelId },
       data: {
         name: data.name,
         description: data.description,
@@ -69,11 +76,15 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 // DELETE /api/custom-levels/[id] - Delete a custom level by ID
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  // First await the params to follow Next.js recommended practice
+  params = await Promise.resolve(params);
+  const { id } = params;
+  
   try {
-    const id = parseInt(params.id);
+    const levelId = parseInt(id);
     
     await prisma.level.delete({
-      where: { id },
+      where: { id: levelId },
     });
     
     return NextResponse.json({ message: 'Niveau supprimé avec succès' });
