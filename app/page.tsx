@@ -332,6 +332,12 @@ export default function Home() {
             >
               {showAdjustmentTools ? "Masquer les réglages" : "Réglages avancés"}
             </button>
+            <a  
+              href="/custom-levels"
+              className="text-sm bg-blue-200 hover:bg-blue-300 text-blue-800 font-medium py-1 px-3 rounded"
+            >
+              Custom Levels
+            </a>
           </div>
           
           {/* Intégrer le sélecteur de niveau */}
@@ -604,14 +610,6 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
-          <div className="flex justify-center mt-6">
-            <Link 
-              href="/custom-levels" 
-              className="btn-secondary"
-            >
-              Mes Niveaux Personnalisés
-            </Link>
           </div>
         </div>
       </main>

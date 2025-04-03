@@ -8,9 +8,11 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
 import RemoteControl from '@/components/kit2/RemoteControl';
 import CommandQueue from '@/components/kit2/CommandQueue';
+import LevelSelector from '@/components/kit2/LevelSelector';
 import GameBoard from '@/components/GameBoard';
 import { defaultAdjustments } from '@/utils/pieceAdjustments';
 import CustomDragLayer from '@/components/CustomDragLayer';
+import { kit2Levels, getDefaultKit2Level, Kit2Level } from '@/utils/kit2Levels';
 
 // Types for the game
 type Direction = 'up' | 'down' | 'left' | 'right';
@@ -41,12 +43,15 @@ export default function Kit2Page() {
     setIsTouch(isTouchDevice());
   }, []);
   
+  // Level state
+  const [currentLevel, setCurrentLevel] = useState<Kit2Level>(getDefaultKit2Level());
+  
   // State for the game board
-  const [grid, setGrid] = useState<(string | null)[][]>(Array(3).fill(null).map(() => Array(5).fill(null)));
+  const [grid, setGrid] = useState<(string | null)[][]>([]);
   const [lockedCells, setLockedCells] = useState<{row: number, col: number}[]>([]);
   
   // State for the turtle character
-  const [turtlePosition, setTurtlePosition] = useState<Position>({ row: 2, col: 0 });
+  const [turtlePosition, setTurtlePosition] = useState<Position>({ row: 0, col: 0 });
   const [targetPosition, setTargetPosition] = useState<Position | null>(null);
   
   // State for command programming
@@ -78,31 +83,29 @@ export default function Kit2Page() {
     message: string;
   }>({ show: false, success: false, message: '' });
   
-  // Initialize the game board
+  // Initialize the game level
   useEffect(() => {
-    // Example: Setting up a simple level with a start and end point
-    const initialGrid = Array(3).fill(null).map(() => Array(5).fill(null));
+    loadLevel(currentLevel);
+  }, [currentLevel]);
+  
+  // Function to load a level
+  const loadLevel = (level: Kit2Level) => {
+    setGrid([...level.grid.map(row => [...row])]);
+    setLockedCells([...level.lockedCells]);
+    setTurtlePosition({...level.startPosition});
+    setTargetPosition({...level.targetPosition});
     
-    // Place some obstacles and the target
-    initialGrid[0][4] = 'fin_1'; // House/target at top right
-    initialGrid[1][1] = 'obstacle_1'; // Rock obstacle
-    initialGrid[1][3] = 'obstacle_2'; // Tree obstacle
-    initialGrid[2][0] = 'debut_1'; // Start position
-    
-    setGrid(initialGrid);
-    
-    // Lock these cells
-    setLockedCells([
-      { row: 0, col: 4 }, // House
-      { row: 1, col: 1 }, // Rock
-      { row: 1, col: 3 }, // Tree
-      { row: 2, col: 0 }  // Start
-    ]);
-    
-    // Set the target position
-    setTargetPosition({ row: 0, col: 4 });
-    
-  }, []);
+    // Reset game state
+    setCommandQueue([]);
+    setIsExecuting(false);
+    setCurrentCommandIndex(-1);
+    setFeedback({ show: false, success: false, message: '' });
+  };
+  
+  // Handle level selection
+  const handleSelectLevel = (level: Kit2Level) => {
+    setCurrentLevel(level);
+  };
   
   // Add a command to the queue
   const handleAddCommand = (command: Command) => {
@@ -129,14 +132,14 @@ const handleStartExecution = async () => {
   setCurrentCommandIndex(-1);
   
   // Reset turtle to start position
-  setTurtlePosition({ row: 2, col: 0 });
+  setTurtlePosition({...currentLevel.startPosition});
   
   try {
     // Short delay to ensure UI updates
     await new Promise(resolve => setTimeout(resolve, 100));
     
     // Use local variable to track position during execution
-    let currentPos = { row: 2, col: 0 };
+    let currentPos = {...currentLevel.startPosition};
     
     // Execute each command with proper delays
     for (let i = 0; i < commandQueue.length; i++) {
@@ -155,11 +158,11 @@ const handleStartExecution = async () => {
       
       if (command === 'up' && nextPos.row > 0) {
         nextPos.row -= 1;
-      } else if (command === 'down' && nextPos.row < 2) {
+      } else if (command === 'down' && nextPos.row < grid.length - 1) {
         nextPos.row += 1;
       } else if (command === 'left' && nextPos.col > 0) {
         nextPos.col -= 1;
-      } else if (command === 'right' && nextPos.col < 4) {
+      } else if (command === 'right' && nextPos.col < grid[0].length - 1) {
         nextPos.col += 1;
       }
       
@@ -184,7 +187,7 @@ const handleStartExecution = async () => {
         await new Promise(resolve => setTimeout(resolve, 1500));
         
         // Reset to starting position
-        setTurtlePosition({ row: 2, col: 0 });
+        setTurtlePosition({...currentLevel.startPosition});
         setCommandQueue([]);
         setIsExecuting(false);
         setCurrentCommandIndex(-1);
@@ -216,7 +219,7 @@ const handleStartExecution = async () => {
         await new Promise(resolve => setTimeout(resolve, 1500));
         
         // Reset to starting position
-        setTurtlePosition({ row: 2, col: 0 });
+        setTurtlePosition({...currentLevel.startPosition});
         setCommandQueue([]);
         setIsExecuting(false);
         setCurrentCommandIndex(-1);
@@ -268,7 +271,7 @@ const handleStartExecution = async () => {
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       // Reset to starting position after failure
-      setTurtlePosition({ row: 2, col: 0 });
+      setTurtlePosition({...currentLevel.startPosition});
       setCommandQueue([]);
     }
   } catch (error) {
@@ -287,12 +290,13 @@ const handleStartExecution = async () => {
     setCurrentCommandIndex(-1);
   };
   
-  // Updated reset function to reset everything
+  // Reset the game back to current level's initial state
   const handleResetGame = () => {
-    setTurtlePosition({ row: 2, col: 0 });
+    setTurtlePosition({...currentLevel.startPosition});
     setCommandQueue([]);
     setIsExecuting(false);
     setCurrentCommandIndex(-1);
+    setFeedback({ show: false, success: false, message: '' });
   };
   
   // Check if a cell contains an obstacle
@@ -324,6 +328,14 @@ const handleStartExecution = async () => {
             >
               Retour au jeu principal
             </Link>
+          </div>
+          
+          {/* Level selection */}
+          <div className="mb-6">
+            <LevelSelector 
+              currentLevelId={currentLevel.id} 
+              onSelectLevel={handleSelectLevel} 
+            />
           </div>
           
           <div className="bg-white rounded-xl shadow-xl p-6 mb-6">

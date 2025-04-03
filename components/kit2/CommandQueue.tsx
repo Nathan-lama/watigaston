@@ -23,51 +23,44 @@ const CommandQueue: React.FC<CommandQueueProps> = ({ commands, currentIndex }) =
     // Combined style
     const className = `${baseClass} ${activeClass} ${index < currentIndex ? "opacity-50" : ""}`;
     
-    // Return appropriate icon based on command
+    // Define the arrow characters for each direction
+    let content;
+    
     switch (command) {
       case 'up':
-        return (
-          <div className={className}>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-            </svg>
-          </div>
+        content = (
+          <span className="text-xl font-bold">⬆️</span>
         );
+        break;
       case 'down':
-        return (
-          <div className={className}>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </div>
+        content = (
+          <span className="text-xl font-bold">⬇️</span>
         );
+        break;
       case 'left':
-        return (
-          <div className={className}>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-          </div>
+        content = (
+          <span className="text-xl font-bold">⬅️</span>
         );
+        break;
       case 'right':
-        return (
-          <div className={className}>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
-          </div>
+        content = (
+          <span className="text-xl font-bold">➡️</span>
         );
+        break;
       case 'action':
-        return (
-          <div className={className}>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
+        content = (
+          <span className="text-xl font-bold">⚡</span>
         );
+        break;
       default:
-        return null;
+        content = null;
     }
+    
+    return (
+      <div className={className}>
+        {content}
+      </div>
+    );
   };
 
   return (
