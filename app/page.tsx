@@ -338,6 +338,12 @@ export default function Home() {
             >
               Custom Levels
             </a>
+            <a  
+              href="/kit2"
+              className="text-sm bg-blue-300 hover:bg-blue-400 text-blue-900 font-medium py-1 px-3 rounded"
+            >
+              Kit2
+            </a>
           </div>
           
           {/* Intégrer le sélecteur de niveau */}
