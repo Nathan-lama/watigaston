@@ -3,16 +3,13 @@ import { prisma } from '@/utils/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/utils/auth-options';
 
-// Correct type definition for route params in App Router
-type RouteParams = { params: { id: string } };
-
 // GET /api/levels/[id] - Récupérer un niveau spécifique
 export async function GET(
   request: NextRequest,
-  context: RouteParams
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const id = params.id;
     const levelId = parseInt(id);
     
     const level = await prisma.level.findUnique({
@@ -32,7 +29,7 @@ export async function GET(
 // PUT /api/levels/[id] - Mettre à jour un niveau
 export async function PUT(
   request: NextRequest,
-  context: RouteParams
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -41,7 +38,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    const { id } = context.params;
+    const id = params.id;
     const levelId = parseInt(id);
     const data = await request.json();
     
@@ -68,7 +65,7 @@ export async function PUT(
 // DELETE /api/levels/[id] - Supprimer un niveau
 export async function DELETE(
   request: NextRequest,
-  context: RouteParams
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -77,7 +74,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    const { id } = context.params;
+    const id = params.id;
     const levelId = parseInt(id);
     
     await prisma.level.delete({

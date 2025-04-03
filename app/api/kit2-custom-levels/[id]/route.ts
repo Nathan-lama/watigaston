@@ -12,10 +12,10 @@ type RouteParams = { params: { id: string } };
 // GET /api/kit2-custom-levels/[id]
 export async function GET(
   request: NextRequest,
-  context: RouteParams
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const id = params.id;
     const levelId = parseInt(id);
     
     if (isNaN(levelId)) {
@@ -30,7 +30,7 @@ export async function GET(
     
     return NextResponse.json(level);
   } catch (error) {
-    console.error(`Error fetching kit2 level ${context.params.id}:`, error);
+    console.error(`Error fetching kit2 level ${params.id}:`, error);
     return NextResponse.json(
       { error: 'Error fetching kit2 level' },
       { status: 500 }
@@ -41,10 +41,10 @@ export async function GET(
 // PUT /api/kit2-custom-levels/[id]
 export async function PUT(
   request: NextRequest,
-  context: RouteParams
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const id = params.id;
     const levelId = parseInt(id);
     
     if (isNaN(levelId)) {
@@ -70,7 +70,7 @@ export async function PUT(
     
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error(`Error updating kit2 level ${context.params.id}:`, error);
+    console.error(`Error updating kit2 level ${params.id}:`, error);
     return NextResponse.json(
       { error: 'Error updating kit2 level' },
       { status: 500 }
@@ -81,10 +81,10 @@ export async function PUT(
 // DELETE /api/kit2-custom-levels/[id]
 export async function DELETE(
   request: NextRequest,
-  context: RouteParams
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const id = params.id;
     const levelId = parseInt(id);
     
     if (isNaN(levelId)) {
@@ -99,7 +99,7 @@ export async function DELETE(
     
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error(`Error deleting kit2 level ${context.params.id}:`, error);
+    console.error(`Error deleting kit2 level ${params.id}:`, error);
     return NextResponse.json(
       { error: 'Error deleting kit2 level' },
       { status: 500 }
