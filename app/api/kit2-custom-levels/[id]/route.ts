@@ -7,12 +7,12 @@ import {
 } from '@/utils/kit2CustomLevels';
 
 // GET /api/kit2-custom-levels/[id]
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  // First await the params to follow Next.js recommended practice
-  params = await Promise.resolve(params);
-  const { id } = params;
-  
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
+    const { id } = params;
     const levelId = parseInt(id);
     
     if (isNaN(levelId)) {
@@ -36,12 +36,12 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 // PUT /api/kit2-custom-levels/[id]
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  // First await the params to follow Next.js recommended practice
-  params = await Promise.resolve(params);
-  const { id } = params;
-  
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
+    const { id } = params;
     const levelId = parseInt(id);
     
     if (isNaN(levelId)) {
@@ -76,12 +76,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 // DELETE /api/kit2-custom-levels/[id]
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  // First await the params to follow Next.js recommended practice
-  params = await Promise.resolve(params);
-  const { id } = params;
-  
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
+    const { id } = params;
     const levelId = parseInt(id);
     
     if (isNaN(levelId)) {

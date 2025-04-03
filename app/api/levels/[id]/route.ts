@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/utils/db';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/utils/auth-options'; // Update this import
+import { authOptions } from '@/utils/auth-options';
 
 // GET /api/levels/[id] - Récupérer un niveau spécifique
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  // First await the params to follow Next.js recommended practice
-  params = await Promise.resolve(params);
-  const { id } = params;
-  
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
+    const { id } = params;
     const levelId = parseInt(id);
     
     const level = await prisma.level.findUnique({
@@ -27,11 +27,10 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 // PUT /api/levels/[id] - Mettre à jour un niveau
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  // First await the params to follow Next.js recommended practice
-  params = await Promise.resolve(params);
-  const { id } = params;
-  
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -39,6 +38,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
+    const { id } = params;
     const levelId = parseInt(id);
     const data = await request.json();
     
@@ -63,11 +63,10 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 // DELETE /api/levels/[id] - Supprimer un niveau
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  // First await the params to follow Next.js recommended practice
-  params = await Promise.resolve(params);
-  const { id } = params;
-  
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -75,6 +74,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
+    const { id } = params;
     const levelId = parseInt(id);
     
     await prisma.level.delete({
