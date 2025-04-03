@@ -16,7 +16,8 @@ import { kit2Levels, getDefaultKit2Level, Kit2Level } from '@/utils/kit2Levels';
 
 // Types for the game
 type Direction = 'up' | 'down' | 'left' | 'right';
-type Command = Direction | 'action';
+type TurtleDirection = 'north' | 'east' | 'south' | 'west';
+type Command = Direction | 'advance' | 'action';
 type Position = { row: number; col: number };
 
 // Detect touch devices
@@ -52,6 +53,7 @@ export default function Kit2Page() {
   
   // State for the turtle character
   const [turtlePosition, setTurtlePosition] = useState<Position>({ row: 0, col: 0 });
+  const [turtleDirection, setTurtleDirection] = useState<TurtleDirection>('east');
   const [targetPosition, setTargetPosition] = useState<Position | null>(null);
   
   // State for command programming
@@ -131,15 +133,17 @@ const handleStartExecution = async () => {
   setIsExecuting(true);
   setCurrentCommandIndex(-1);
   
-  // Reset turtle to start position
+  // Reset turtle to start position and direction
   setTurtlePosition({...currentLevel.startPosition});
+  setTurtleDirection('north'); // Default starting direction (facing UP)
   
   try {
     // Short delay to ensure UI updates
     await new Promise(resolve => setTimeout(resolve, 100));
     
-    // Use local variable to track position during execution
+    // Use local variables to track position and direction during execution
     let currentPos = {...currentLevel.startPosition};
+    let currentDirection: TurtleDirection = 'north'; // Default starting direction
     
     // Execute each command with proper delays
     for (let i = 0; i < commandQueue.length; i++) {
@@ -153,82 +157,110 @@ const handleStartExecution = async () => {
       const command = commandQueue[i];
       console.log(`Executing command ${i+1}/${commandQueue.length}: ${command}`);
       
-      // Calculate the next position based on current command
-      const nextPos = { ...currentPos };
-      
-      if (command === 'up' && nextPos.row > 0) {
-        nextPos.row -= 1;
-      } else if (command === 'down' && nextPos.row < grid.length - 1) {
-        nextPos.row += 1;
-      } else if (command === 'left' && nextPos.col > 0) {
-        nextPos.col -= 1;
-      } else if (command === 'right' && nextPos.col < grid[0].length - 1) {
-        nextPos.col += 1;
-      }
-      
-      // Check if the move would go out-of-bounds
-      const isOutOfBounds = 
-        nextPos.row < 0 || 
-        nextPos.row >= grid.length || 
-        nextPos.col < 0 || 
-        nextPos.col >= grid[0].length;
-      
-      if (isOutOfBounds) {
-        console.log(`⚠️ Commande ${i+1} invalide: mouvement hors du plateau`);
+      // Handle each command type
+      if (command === 'up') {
+        // "Up" command now means "advance forward" in the current direction
+        const nextPos = { ...currentPos };
         
-        // Show error feedback instead of alert
-        setFeedback({
-          show: true,
-          success: false,
-          message: "Gaston ne peut pas sortir du plateau!"
-        });
-        
-        // Allow the error feedback to be visible
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        // Reset to starting position
-        setTurtlePosition({...currentLevel.startPosition});
-        setCommandQueue([]);
-        setIsExecuting(false);
-        setCurrentCommandIndex(-1);
-        return;
-      }
-      
-      // Check if the cell has an obstacle
-      const hasObstacle = grid[nextPos.row][nextPos.col]?.startsWith('obstacle_');
-      
-      if (hasObstacle) {
-        console.log(`⚠️ Commande ${i+1} invalide: obstacle détecté`);
-        
-        // Show obstacle hit animation
-        const turtleElement = document.getElementById('turtle');
-        if (turtleElement) {
-          turtleElement.classList.add('error-flash');
-          await new Promise(resolve => setTimeout(resolve, 800));
-          turtleElement.classList.remove('error-flash');
+        // Move forward in the current facing direction
+        switch (currentDirection) {
+          case 'north':
+            if (nextPos.row > 0) nextPos.row -= 1;
+            break;
+          case 'east':
+            if (nextPos.col < grid[0].length - 1) nextPos.col += 1;
+            break;
+          case 'south':
+            if (nextPos.row < grid.length - 1) nextPos.row += 1;
+            break;
+          case 'west':
+            if (nextPos.col > 0) nextPos.col -= 1;
+            break;
         }
         
-        // Show error feedback
-        setFeedback({
-          show: true,
-          success: false,
-          message: "Gaston a rencontré un obstacle!"
-        });
+        // Check if the move would go out-of-bounds
+        const isOutOfBounds = (
+          (currentDirection === 'north' && currentPos.row === 0) ||
+          (currentDirection === 'east' && currentPos.col === grid[0].length - 1) ||
+          (currentDirection === 'south' && currentPos.row === grid.length - 1) ||
+          (currentDirection === 'west' && currentPos.col === 0)
+        );
         
-        // Allow the error feedback to be visible
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        if (isOutOfBounds) {
+          console.log(`⚠️ Commande ${i+1} invalide: mouvement hors du plateau`);
+          
+          // Show error feedback
+          setFeedback({
+            show: true,
+            success: false,
+            message: "Gaston ne peut pas sortir du plateau!"
+          });
+          
+          // Allow the error feedback to be visible
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          // Reset to starting position
+          setTurtlePosition({...currentLevel.startPosition});
+          setTurtleDirection('north');
+          setCommandQueue([]);
+          setIsExecuting(false);
+          setCurrentCommandIndex(-1);
+          return;
+        }
         
-        // Reset to starting position
-        setTurtlePosition({...currentLevel.startPosition});
-        setCommandQueue([]);
-        setIsExecuting(false);
-        setCurrentCommandIndex(-1);
-        return;
+        // Check if the cell has an obstacle
+        const hasObstacle = grid[nextPos.row][nextPos.col]?.startsWith('obstacle_');
+        const isDecorative = grid[nextPos.row][nextPos.col]?.startsWith('deco_');
+        
+        if (hasObstacle && !isDecorative) {
+          console.log(`⚠️ Commande ${i+1} invalide: obstacle détecté`);
+          
+          // Show obstacle hit animation
+          const turtleElement = document.getElementById('turtle');
+          if (turtleElement) {
+            turtleElement.classList.add('error-flash');
+            await new Promise(resolve => setTimeout(resolve, 800));
+            turtleElement.classList.remove('error-flash');
+          }
+          
+          // Show error feedback
+          setFeedback({
+            show: true,
+            success: false,
+            message: "Gaston a rencontré un obstacle!"
+          });
+          
+          // Allow the error feedback to be visible
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          // Reset to starting position
+          setTurtlePosition({...currentLevel.startPosition});
+          setTurtleDirection('north');
+          setCommandQueue([]);
+          setIsExecuting(false);
+          setCurrentCommandIndex(-1);
+          return;
+        }
+        
+        // Move is valid, update turtle position
+        currentPos = { ...nextPos };
+        setTurtlePosition({ ...currentPos });
+      } 
+      else if (command === 'right') {
+        // Change direction to right/east
+        currentDirection = 'east';
+        setTurtleDirection(currentDirection);
+      } 
+      else if (command === 'down') {
+        // Change direction to down/south
+        currentDirection = 'south';
+        setTurtleDirection(currentDirection);
+      } 
+      else if (command === 'left') {
+        // Change direction to left/west
+        currentDirection = 'west';
+        setTurtleDirection(currentDirection);
       }
-      
-      // Move is valid, update turtle position
-      currentPos = { ...nextPos };
-      setTurtlePosition({ ...currentPos });
       
       // Wait for animation
       await new Promise(resolve => setTimeout(resolve, 600));
@@ -272,6 +304,7 @@ const handleStartExecution = async () => {
       
       // Reset to starting position after failure
       setTurtlePosition({...currentLevel.startPosition});
+      setTurtleDirection('north');
       setCommandQueue([]);
     }
   } catch (error) {
@@ -293,6 +326,7 @@ const handleStartExecution = async () => {
   // Reset the game back to current level's initial state
   const handleResetGame = () => {
     setTurtlePosition({...currentLevel.startPosition});
+    setTurtleDirection('east');
     setCommandQueue([]);
     setIsExecuting(false);
     setCurrentCommandIndex(-1);
@@ -312,6 +346,17 @@ const handleStartExecution = async () => {
       transform: 'translate(-50%, -50%)',
     };
   };
+
+  // Helper function to get rotation angle based on direction
+  function getTurtleRotation(direction: TurtleDirection): number {
+    switch (direction) {
+      case 'north': return -90;
+      case 'east': return 0;
+      case 'south': return 90;
+      case 'west': return 180;
+      default: return 0;
+    }
+  }
 
   return (
     <DndProvider backend={isTouch ? TouchBackend : HTML5Backend} options={isTouch ? touchBackendOptions : undefined}>
@@ -387,14 +432,14 @@ const handleStartExecution = async () => {
                   handleResetGrid={() => {}}
                 />
                 
-                {/* Updated turtle with additional success animation class */}
+                {/* Updated turtle with rotation */}
                 <div 
                   id="turtle"
                   className="absolute transition-all duration-300 ease-in-out z-50"
                   style={{
                     top: `${6 + debug.gridOffsetY + turtlePosition.row * debug.cellSize + debug.cellSize/2}px`,
                     left: `${6 + debug.gridOffsetX + turtlePosition.col * debug.cellSize + debug.cellSize/2}px`,
-                    transform: 'translate(-50%, -50%)',
+                    transform: `translate(-50%, -50%) rotate(${getTurtleRotation(turtleDirection)}deg)`,
                     filter: isExecuting ? 'drop-shadow(0 0 8px rgba(255,255,0,0.7))' : 'none'
                   }}
                 >

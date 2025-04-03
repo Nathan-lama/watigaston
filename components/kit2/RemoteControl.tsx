@@ -15,67 +15,89 @@ const RemoteControl: React.FC<RemoteControlProps> = ({
 }) => {
   // Button style classes
   const directionButtonClass = "bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-4 px-6 rounded-lg shadow transition-all duration-200 active:scale-95 flex items-center justify-center";
+  const advanceButtonClass = "bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg shadow transition-all duration-200 active:scale-95";
   const actionButtonClass = "bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 px-6 rounded-lg shadow transition-all duration-200 active:scale-95";
   const controlButtonClass = "font-bold py-3 px-6 rounded-lg shadow transition-all duration-200 active:scale-95";
   
   return (
     <div className="bg-gray-100 p-4 rounded-xl shadow-inner">
-      {/* Direction pad */}
+      {/* Direction pad with updated labels/functions */}
       <div className="grid grid-cols-3 gap-2 mb-4">
+        {/* Up button is now "Advance" - move in current direction */}
         <div className="col-start-2">
           <button 
             onClick={() => onAddCommand('up')} 
             disabled={isExecuting}
-            className={directionButtonClass + " " + (isExecuting ? "opacity-50 cursor-not-allowed" : "")}
-            aria-label="Up"
+            className={advanceButtonClass + " " + (isExecuting ? "opacity-50 cursor-not-allowed" : "")}
+            aria-label="Advance"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-            </svg>
+            <div className="flex flex-col items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="text-xs mt-1">Avancer</span>
+            </div>
           </button>
         </div>
         
+        {/* Left direction - only changes direction */}
         <div className="col-start-1">
           <button 
             onClick={() => onAddCommand('left')} 
             disabled={isExecuting}
             className={directionButtonClass + " " + (isExecuting ? "opacity-50 cursor-not-allowed" : "")}
-            aria-label="Left"
+            aria-label="Turn Left"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
+            <div className="flex flex-col items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              <span className="text-xs mt-1">Tourner à gauche</span>
+            </div>
           </button>
         </div>
         
-        <div className="col-start-2">
-          <button 
-            onClick={() => onAddCommand('down')} 
-            disabled={isExecuting}
-            className={directionButtonClass + " " + (isExecuting ? "opacity-50 cursor-not-allowed" : "")}
-            aria-label="Down"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
-          </button>
+        {/* Empty cell in middle position */}
+        <div className="col-start-2 row-start-2">
+          {/* Empty space */}
         </div>
         
+        {/* Right direction - only changes direction */}
         <div className="col-start-3">
           <button 
             onClick={() => onAddCommand('right')} 
             disabled={isExecuting}
             className={directionButtonClass + " " + (isExecuting ? "opacity-50 cursor-not-allowed" : "")}
-            aria-label="Right"
+            aria-label="Turn Right"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-            </svg>
+            <div className="flex flex-col items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+              </svg>
+              <span className="text-xs mt-1">Tourner à droite</span>
+            </div>
+          </button>
+        </div>
+        
+        {/* Down direction - only changes direction */}
+        <div className="col-start-2 row-start-3">
+          <button 
+            onClick={() => onAddCommand('down')} 
+            disabled={isExecuting}
+            className={directionButtonClass + " " + (isExecuting ? "opacity-50 cursor-not-allowed" : "")}
+            aria-label="Turn Down"
+          >
+            <div className="flex flex-col items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+              <span className="text-xs mt-1">Tourner vers le bas</span>
+            </div>
           </button>
         </div>
       </div>
       
-      {/* Action button */}
+      {/* Action button - kept the same */}
       <div className="mb-4">
         <button 
           onClick={() => onAddCommand('action')} 

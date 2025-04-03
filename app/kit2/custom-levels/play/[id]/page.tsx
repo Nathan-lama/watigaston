@@ -50,6 +50,7 @@ export default function PlayKit2CustomLevel() {
   // Turtle state
   const [turtlePosition, setTurtlePosition] = useState<Position>({ row: 0, col: 0 });
   const [targetPosition, setTargetPosition] = useState<Position | null>(null);
+  const [turtleDirection, setTurtleDirection] = useState<'north' | 'east' | 'south' | 'west'>('east');
   
   // Command state
   const [commandQueue, setCommandQueue] = useState<Command[]>([]);
@@ -131,7 +132,7 @@ export default function PlayKit2CustomLevel() {
   
   // Execute the command queue
   const handleStartExecution = async () => {
-    if (commandQueue.length === 0 || isExecuting || !level) return;
+    if (commandQueue.length === 0 || isExecuting) return;
     
     // Clear any previous feedback
     setFeedback({ show: false, success: false, message: '' });
@@ -139,15 +140,17 @@ export default function PlayKit2CustomLevel() {
     setIsExecuting(true);
     setCurrentCommandIndex(-1);
     
-    // Reset turtle to start position
+    // Reset turtle to start position and direction
     setTurtlePosition({...level.startPosition});
+    setTurtleDirection('north'); // Default starting direction (facing UP)
     
     try {
       // Short delay to ensure UI updates
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      // Use local variable to track position during execution
+      // Use local variables to track position and direction during execution
       let currentPos = {...level.startPosition};
+      let currentDirection: 'north' | 'east' | 'south' | 'west' = 'north'; // Default starting direction
       
       // Execute each command with proper delays
       for (let i = 0; i < commandQueue.length; i++) {
@@ -161,82 +164,110 @@ export default function PlayKit2CustomLevel() {
         const command = commandQueue[i];
         console.log(`Executing command ${i+1}/${commandQueue.length}: ${command}`);
         
-        // Calculate the next position based on current command
-        const nextPos = { ...currentPos };
-        
-        if (command === 'up' && nextPos.row > 0) {
-          nextPos.row -= 1;
-        } else if (command === 'down' && nextPos.row < grid.length - 1) {
-          nextPos.row += 1;
-        } else if (command === 'left' && nextPos.col > 0) {
-          nextPos.col -= 1;
-        } else if (command === 'right' && nextPos.col < grid[0].length - 1) {
-          nextPos.col += 1;
-        }
-        
-        // Check if the move would go out-of-bounds
-        const isOutOfBounds = 
-          nextPos.row < 0 || 
-          nextPos.row >= grid.length || 
-          nextPos.col < 0 || 
-          nextPos.col >= grid[0].length;
-        
-        if (isOutOfBounds) {
-          console.log(`⚠️ Commande ${i+1} invalide: mouvement hors du plateau`);
+        // Handle each command type
+        if (command === 'up') {
+          // "Up" command now means "advance forward" in the current direction
+          const nextPos = { ...currentPos };
           
-          // Show error feedback
-          setFeedback({
-            show: true,
-            success: false,
-            message: "Gaston ne peut pas sortir du plateau!"
-          });
-          
-          // Allow the error feedback to be visible
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          
-          // Reset to starting position
-          setTurtlePosition({...level.startPosition});
-          setCommandQueue([]);
-          setIsExecuting(false);
-          setCurrentCommandIndex(-1);
-          return;
-        }
-        
-        // Check if the cell has an obstacle
-        const hasObstacle = grid[nextPos.row][nextPos.col]?.startsWith('obstacle_');
-        
-        if (hasObstacle) {
-          console.log(`⚠️ Commande ${i+1} invalide: obstacle détecté`);
-          
-          // Show obstacle hit animation
-          const turtleElement = document.getElementById('turtle');
-          if (turtleElement) {
-            turtleElement.classList.add('error-flash');
-            await new Promise(resolve => setTimeout(resolve, 800));
-            turtleElement.classList.remove('error-flash');
+          // Move forward in the current facing direction
+          switch (currentDirection) {
+            case 'north':
+              if (nextPos.row > 0) nextPos.row -= 1;
+              break;
+            case 'east':
+              if (nextPos.col < grid[0].length - 1) nextPos.col += 1;
+              break;
+            case 'south':
+              if (nextPos.row < grid.length - 1) nextPos.row += 1;
+              break;
+            case 'west':
+              if (nextPos.col > 0) nextPos.col -= 1;
+              break;
           }
           
-          // Show error feedback
-          setFeedback({
-            show: true,
-            success: false,
-            message: "Gaston a rencontré un obstacle!"
-          });
+          // Check if the move would go out-of-bounds
+          const isOutOfBounds = (
+            (currentDirection === 'north' && currentPos.row === 0) ||
+            (currentDirection === 'east' && currentPos.col === grid[0].length - 1) ||
+            (currentDirection === 'south' && currentPos.row === grid.length - 1) ||
+            (currentDirection === 'west' && currentPos.col === 0)
+          );
           
-          // Allow the error feedback to be visible
-          await new Promise(resolve => setTimeout(resolve, 1500));
+          if (isOutOfBounds) {
+            console.log(`⚠️ Commande ${i+1} invalide: mouvement hors du plateau`);
+            
+            // Show error feedback
+            setFeedback({
+              show: true,
+              success: false,
+              message: "Gaston ne peut pas sortir du plateau!"
+            });
+            
+            // Allow the error feedback to be visible
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Reset to starting position
+            setTurtlePosition({...level.startPosition});
+            setTurtleDirection('north');
+            setCommandQueue([]);
+            setIsExecuting(false);
+            setCurrentCommandIndex(-1);
+            return;
+          }
           
-          // Reset to starting position
-          setTurtlePosition({...level.startPosition});
-          setCommandQueue([]);
-          setIsExecuting(false);
-          setCurrentCommandIndex(-1);
-          return;
+          // Check if the cell has an obstacle
+          const hasObstacle = grid[nextPos.row][nextPos.col]?.startsWith('obstacle_');
+          const isDecorative = grid[nextPos.row][nextPos.col]?.startsWith('deco_');
+          
+          if (hasObstacle && !isDecorative) {
+            console.log(`⚠️ Commande ${i+1} invalide: obstacle détecté`);
+            
+            // Show obstacle hit animation
+            const turtleElement = document.getElementById('turtle');
+            if (turtleElement) {
+              turtleElement.classList.add('error-flash');
+              await new Promise(resolve => setTimeout(resolve, 800));
+              turtleElement.classList.remove('error-flash');
+            }
+            
+            // Show error feedback
+            setFeedback({
+              show: true,
+              success: false,
+              message: "Gaston a rencontré un obstacle!"
+            });
+            
+            // Allow the error feedback to be visible
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Reset to starting position
+            setTurtlePosition({...level.startPosition});
+            setTurtleDirection('north');
+            setCommandQueue([]);
+            setIsExecuting(false);
+            setCurrentCommandIndex(-1);
+            return;
+          }
+          
+          // Move is valid, update turtle position
+          currentPos = { ...nextPos };
+          setTurtlePosition({ ...currentPos });
+        } 
+        else if (command === 'right') {
+          // Change direction to right/east
+          currentDirection = 'east';
+          setTurtleDirection(currentDirection);
+        } 
+        else if (command === 'down') {
+          // Change direction to down/south
+          currentDirection = 'south';
+          setTurtleDirection(currentDirection);
+        } 
+        else if (command === 'left') {
+          // Change direction to left/west
+          currentDirection = 'west';
+          setTurtleDirection(currentDirection);
         }
-        
-        // Move is valid, update turtle position
-        currentPos = { ...nextPos };
-        setTurtlePosition({ ...currentPos });
         
         // Wait for animation
         await new Promise(resolve => setTimeout(resolve, 600));
@@ -280,6 +311,7 @@ export default function PlayKit2CustomLevel() {
         
         // Reset to starting position after failure
         setTurtlePosition({...level.startPosition});
+        setTurtleDirection('north');
         setCommandQueue([]);
       }
     } catch (error) {
@@ -302,6 +334,7 @@ export default function PlayKit2CustomLevel() {
     if (!level) return;
     
     setTurtlePosition({...level.startPosition});
+    setTurtleDirection('north'); // Set direction to north by default
     setCommandQueue([]);
     setIsExecuting(false);
     setCurrentCommandIndex(-1);
@@ -392,7 +425,7 @@ export default function PlayKit2CustomLevel() {
                   style={{
                     top: `${6 + debug.gridOffsetY + turtlePosition.row * debug.cellSize + debug.cellSize/2}px`,
                     left: `${6 + debug.gridOffsetX + turtlePosition.col * debug.cellSize + debug.cellSize/2}px`,
-                    transform: 'translate(-50%, -50%)',
+                    transform: `translate(-50%, -50%) rotate(${getTurtleRotation(turtleDirection)}deg)`,
                     filter: isExecuting ? 'drop-shadow(0 0 8px rgba(255,255,0,0.7))' : 'none'
                   }}
                 >
@@ -450,4 +483,15 @@ export default function PlayKit2CustomLevel() {
       </div>
     </DndProvider>
   );
+}
+
+// Helper function to get rotation angle based on direction
+function getTurtleRotation(direction: 'north' | 'east' | 'south' | 'west'): number {
+  switch (direction) {
+    case 'north': return -90;
+    case 'east': return 0;
+    case 'south': return 90;
+    case 'west': return 180;
+    default: return 0;
+  }
 }
