@@ -322,12 +322,20 @@ const handleStartExecution = async () => {
             <h1 className="text-3xl font-bold text-blue-800">
               <span className="inline-block">🐢</span> Gaston La Tortue - Mode Kit 2
             </h1>
-            <Link 
-              href="/" 
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded shadow"
-            >
-              Retour au jeu principal
-            </Link>
+            <div className="flex gap-3">
+              <Link 
+                href="/kit2/custom-levels" 
+                className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded shadow"
+              >
+                Niveaux personnalisés
+              </Link>
+              <Link 
+                href="/" 
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded shadow"
+              >
+                Retour au jeu principal
+              </Link>
+            </div>
           </div>
           
           {/* Level selection */}
